@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Config files
+*appsettings.json
+
