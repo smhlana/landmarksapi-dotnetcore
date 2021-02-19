@@ -1,1 +1,1 @@
-# landmarksapi-dotnetcore
+# dotnet-landmarks-api
