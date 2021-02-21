@@ -20,7 +20,7 @@ namespace LandmarksAPI.Services
 			_cosmosDbService = cosmosDbService;
 		}
 
-		public async Task<List<string>> SearchByNameAsync(string name)
+		public async Task<List<string>> SearchAsync(string name)
 		{
 			List<string> urls = new List<string>();
 			var parameters = new Dictionary<string, string>
@@ -31,6 +31,27 @@ namespace LandmarksAPI.Services
 				{"categoryId", "4bf58dd8d48988d12d941735"}
 			};
 
+			return await Search(parameters);
+		}
+
+		public async Task<List<string>> SearchAsync(string latitude, string longitude)
+		{
+			List<string> urls = new List<string>();
+			string latLong = $"{latitude},{longitude}";
+			var parameters = new Dictionary<string, string>
+			{
+				{"ll", latLong},
+				{"radius", "50000"},
+				{"limit", "6" },
+				{"categoryId", "4bf58dd8d48988d12d941735"}
+			};
+
+			return await Search(parameters);
+		}
+
+		private async Task<List<string>> Search(Dictionary<string, string> parameters)
+		{
+			List<string> urls = new List<string>();
 			List<Venue> venues = _fourSquareService.SearchVenues(parameters);
 			if (venues.Count == 0) return urls;
 

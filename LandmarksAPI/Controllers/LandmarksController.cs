@@ -35,7 +35,15 @@ namespace LandmarksAPI.Controllers
 		public async Task<IEnumerable<string>> SearchLocationsAsync(string name)
 		{
 			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
-			return await landmarks.SearchByNameAsync(name);
+			return await landmarks.SearchAsync(name);
+		}
+
+		// Get: api/locations/searchbylatlong/latitude/longitude
+		[HttpGet("searchbylatlong/{latitude}/{longitude}")]
+		public async Task<IEnumerable<string>> SearchLocationsAsync(string latitude, string longitude)
+		{
+			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
+			return await landmarks.SearchAsync(latitude, longitude);
 		}
 	}
 }

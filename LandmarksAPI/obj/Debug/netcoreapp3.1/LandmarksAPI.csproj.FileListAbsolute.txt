@@ -83,7 +83,6 @@ C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\bin\Debug\ne
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\bin\Debug\netcoreapp3.1\SharpSquare.dll
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\bin\Debug\netcoreapp3.1\SharpSquare.pdb
-C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.csprojAssemblyReference.cache
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.AssemblyInfoInputs.cache
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.AssemblyInfo.cs
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.csproj.CoreCompileInputs.cache
