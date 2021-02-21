@@ -16,7 +16,12 @@ namespace LandmarksAPI.Services
             this._container = dbClient.GetContainer(databaseName, containerName);
         }
 
-        public async Task<IEnumerable<Location>> GetItemsAsync(string queryString)
+		public async void AddItemAsync(Location item)
+		{
+            await this._container.CreateItemAsync(item, new PartitionKey(item.Name));
+        }
+
+		public async Task<IEnumerable<Location>> GetItemsAsync(string queryString)
         {
             var query = this._container.GetItemQueryIterator<Location>(new QueryDefinition(queryString));
             List<Location> results = new List<Location>();
@@ -28,6 +33,11 @@ namespace LandmarksAPI.Services
             }
 
             return results;
+        }
+
+		public async Task UpdateItemAsync(Location item)
+		{
+            await this._container.UpsertItemAsync(item, new PartitionKey(item.Name));
         }
 	}
 }

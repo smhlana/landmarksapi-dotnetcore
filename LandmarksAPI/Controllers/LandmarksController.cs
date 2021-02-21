@@ -14,11 +14,13 @@ namespace LandmarksAPI.Controllers
 	public class LandmarksController : ControllerBase
 	{
 		private readonly ICosmosDbService _cosmosDbService;
-		private readonly ILandmarksService _landmarksService;
-		public LandmarksController(ICosmosDbService cosmosDbService, ILandmarksService landmarksService)
+		private readonly IFourSquareService _fourSquareService;
+		private readonly IFlickrService _flickrService;
+		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService)
 		{
 			_cosmosDbService = cosmosDbService;
-			_landmarksService = landmarksService;
+			_fourSquareService = fourSquareService;
+			_flickrService = flickrService;
 		}
 
 		// Get: api/landmarks
@@ -32,7 +34,8 @@ namespace LandmarksAPI.Controllers
 		[HttpGet("searchbyname/{name}")]
 		public async Task<IEnumerable<string>> SearchLocationsAsync(string name)
 		{
-			return await _landmarksService.SearchByName(name);
+			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
+			return await landmarks.SearchByNameAsync(name);
 		}
 	}
 }

@@ -9,7 +9,7 @@ namespace LandmarksAPI.Models
 		public string UserId { get; set; }
 		[JsonProperty(PropertyName = "id")]
 		public string Id { get; set; }
-		[JsonProperty(PropertyName = "name")]
+		[JsonProperty(PropertyName = "city")]
 		public string Name { get; set; }
 		[JsonProperty(PropertyName = "latitude")]
 		public string Latitude { get; set; }

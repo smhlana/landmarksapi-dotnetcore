@@ -5518,11 +5518,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\SesethuM\\source\\repos\\dotnet-landmarks-api\\LandmarksAPI\\LandmarksAPI.csproj",
+      "projectUniqueName": "C:\\Users\\SesethuM\\source\\repos\\landmarksapi-dotnetcore\\LandmarksAPI\\LandmarksAPI.csproj",
       "projectName": "LandmarksAPI",
-      "projectPath": "C:\\Users\\SesethuM\\source\\repos\\dotnet-landmarks-api\\LandmarksAPI\\LandmarksAPI.csproj",
+      "projectPath": "C:\\Users\\SesethuM\\source\\repos\\landmarksapi-dotnetcore\\LandmarksAPI\\LandmarksAPI.csproj",
       "packagesPath": "C:\\Users\\SesethuM\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\SesethuM\\source\\repos\\dotnet-landmarks-api\\LandmarksAPI\\obj\\",
+      "outputPath": "C:\\Users\\SesethuM\\source\\repos\\landmarksapi-dotnetcore\\LandmarksAPI\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\SesethuM\\AppData\\Roaming\\NuGet\\NuGet.Config",

@@ -14,5 +14,10 @@ namespace LandmarksAPI.Services
 		{
 			this._flickrClient = new Flickr(key);
 		}
+
+		public async Task<PhotoCollection> PhotosSearchAsync(PhotoSearchOptions options)
+		{
+			return await _flickrClient.PhotosSearchAsync(options);
+		}
 	}
 }

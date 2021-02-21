@@ -10,7 +10,7 @@ namespace LandmarksAPI.Services
 	{
 		Task<IEnumerable<Location>> GetItemsAsync(string queryString);
 		//Task<Location> GetItemAsync(string name);
-		//Task AddItemAsync(Location item);
-		//Task UpdateItemAsync(Location item);
+		void AddItemAsync(Location item);
+		Task UpdateItemAsync(Location item);
 	}
 }
