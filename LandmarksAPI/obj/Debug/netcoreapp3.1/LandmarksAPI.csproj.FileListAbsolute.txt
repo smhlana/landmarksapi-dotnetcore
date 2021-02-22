@@ -95,3 +95,4 @@ C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\ne
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.dll
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.pdb
 C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.genruntimeconfig.cache
+C:\Users\SesethuM\source\repos\landmarksapi-dotnetcore\LandmarksAPI\obj\Debug\netcoreapp3.1\LandmarksAPI.csprojAssemblyReference.cache

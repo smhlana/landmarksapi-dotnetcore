@@ -32,7 +32,7 @@ namespace LandmarksAPI.Controllers
 
 		// Get: api/locations/searchbyname/{name}
 		[HttpGet("searchbyname/{name}")]
-		public async Task<IEnumerable<string>> SearchLocationsAsync(string name)
+		public async Task<IEnumerable<string>> SearchLandmarksAsync(string name)
 		{
 			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
 			return await landmarks.SearchAsync(name);
@@ -40,10 +40,18 @@ namespace LandmarksAPI.Controllers
 
 		// Get: api/locations/searchbylatlong/latitude/longitude
 		[HttpGet("searchbylatlong/{latitude}/{longitude}")]
-		public async Task<IEnumerable<string>> SearchLocationsAsync(string latitude, string longitude)
+		public async Task<IEnumerable<string>> SearchLandmarksAsync(string latitude, string longitude)
 		{
 			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
 			return await landmarks.SearchAsync(latitude, longitude);
+		}
+
+		// Get: api/locations/locationimages/locationName
+		[HttpGet("locationimages/{locationName}")]
+		public async Task<IEnumerable<string>> GetLocationImagesAsync(string locationName)
+		{
+			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
+			return await landmarks.GetImagesByLocation(locationName);
 		}
 	}
 }

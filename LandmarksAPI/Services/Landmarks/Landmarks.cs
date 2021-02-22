@@ -66,11 +66,37 @@ namespace LandmarksAPI.Services
 			return FetchAllUrlsForLocation(location);
 		}
 
+		public async Task<List<string>> GetImagesByLocation(string locationName)
+		{
+			List<string> urls = new List<string>();
+
+			string queryString = "SELECT * FROM c where c.city='" + locationName + "' and c.userid='" + "1" + "'";
+			var items = await _cosmosDbService.GetItemsAsync(queryString);
+			if (items.ToArray().Length == 0) return urls;
+
+			List<Landmark> landmarks = new List<Landmark>();
+			List<Models.Photo> photos = new List<Models.Photo>();
+			foreach (Models.Location location in items)
+			{
+				landmarks.AddRange(location.Landmarks);
+			}
+			foreach (Landmark landmark in landmarks)
+			{
+				photos.AddRange(landmark.Images);
+			}
+			foreach (Models.Photo photo in photos)
+			{
+				urls.Add(photo.Url);
+			}
+
+			return urls;
+		}
+
 		private async Task<bool> DocumentExists(Models.Location newLocation, string userId)
 		{
-			string queryString = "SELECT c.name FROM c where c.name='" + newLocation.Name + "' and c.userid='" + userId + "'";
-			var item = await _cosmosDbService.GetItemsAsync(queryString);
-			if (item.ToArray().Length > 0) return true;
+			string queryString = "SELECT c.name FROM c where c.city='" + newLocation.Name + "' and c.userid='" + userId + "'";
+			var items = await _cosmosDbService.GetItemsAsync(queryString);
+			if (items.ToArray().Length > 0) return true;
 			else return false;
 		}
 
