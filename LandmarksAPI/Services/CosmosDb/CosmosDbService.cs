@@ -13,17 +13,17 @@ namespace LandmarksAPI.Services
 
         public CosmosDbService(CosmosClient dbClient, string databaseName, string containerName)
         {
-            this._container = dbClient.GetContainer(databaseName, containerName);
+            _container = dbClient.GetContainer(databaseName, containerName);
         }
 
 		public async void AddItemAsync(Location item)
 		{
-            await this._container.CreateItemAsync(item, new PartitionKey(item.Name));
+            await _container.CreateItemAsync(item, new PartitionKey(item.Name));
         }
 
 		public async Task<IEnumerable<Location>> GetItemsAsync(string queryString)
         {
-            var query = this._container.GetItemQueryIterator<Location>(new QueryDefinition(queryString));
+            var query = _container.GetItemQueryIterator<Location>(new QueryDefinition(queryString));
             List<Location> results = new List<Location>();
 			try
 			{
@@ -44,7 +44,7 @@ namespace LandmarksAPI.Services
 
 		public async Task UpdateItemAsync(Location item)
 		{
-            await this._container.UpsertItemAsync(item, new PartitionKey(item.Name));
+            await _container.UpsertItemAsync(item, new PartitionKey(item.Name));
         }
 	}
 }

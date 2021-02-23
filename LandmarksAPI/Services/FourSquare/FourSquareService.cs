@@ -13,7 +13,7 @@ namespace LandmarksAPI.Services
 
 		public FourSquareService(string clientId, string clientSecret)
 		{
-			this._sharpSquareClient = new SharpSquare(clientId, clientSecret);
+			_sharpSquareClient = new SharpSquare(clientId, clientSecret);
 		}
 
 		public List<Venue> SearchVenues(Dictionary<string, string> parameters)

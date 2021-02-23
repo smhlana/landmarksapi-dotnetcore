@@ -12,7 +12,7 @@ namespace LandmarksAPI.Services
 
 		public FlickrService(string key)
 		{
-			this._flickrClient = new Flickr(key);
+			_flickrClient = new Flickr(key);
 		}
 
 		public async Task<PhotoCollection> PhotosSearchAsync(PhotoSearchOptions options)
