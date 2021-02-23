@@ -66,11 +66,14 @@ namespace LandmarksAPI.Services
 			return FetchAllUrlsForLocation(location);
 		}
 
+		public async Task<IEnumerable<Models.Location>> FetchAllAsync()
+		{
+			return await _cosmosDbService.GetItemsAsync("SELECT * FROM c where c.userid='1'");
+		}
+
 		public async Task<Models.Photo> GetImageDetaisByUrlAsync(string url)
 		{
-			List<string> urls = new List<string>();
-			string queryString = "SELECT * FROM c where c.userid='1'";
-			var items = await _cosmosDbService.GetItemsAsync(queryString);
+			var items = await FetchAllAsync();
 
 			List<Landmark> landmarks = new List<Landmark>();
 			List<Models.Photo> photos = new List<Models.Photo>();
@@ -92,9 +95,7 @@ namespace LandmarksAPI.Services
 
 		public async Task<Models.Photo> GetImageDetaisByIdAsync(string id)
 		{
-			List<string> urls = new List<string>();
-			string queryString = "SELECT * FROM c where c.userid='1'";
-			var items = await _cosmosDbService.GetItemsAsync(queryString);
+			var items = await FetchAllAsync();
 
 			List<Landmark> landmarks = new List<Landmark>();
 			List<Models.Photo> photos = new List<Models.Photo>();

@@ -27,7 +27,8 @@ namespace LandmarksAPI.Controllers
 		[HttpGet]
 		public async Task<IEnumerable<Location>> Index()
 		{
-			return await _cosmosDbService.GetItemsAsync("SELECT * FROM c where c.userid='1'");
+			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
+			return await landmarks.FetchAllAsync();
 		}
 
 		// Get: api/landmarks/searchbyname/{name}
