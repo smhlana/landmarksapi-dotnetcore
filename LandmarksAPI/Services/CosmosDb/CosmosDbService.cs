@@ -25,12 +25,19 @@ namespace LandmarksAPI.Services
         {
             var query = this._container.GetItemQueryIterator<Location>(new QueryDefinition(queryString));
             List<Location> results = new List<Location>();
-            while (query.HasMoreResults)
-            {
-                var response = await query.ReadNextAsync();
+			try
+			{
+				while (query.HasMoreResults)
+				{
+					var response = await query.ReadNextAsync();
 
-                results.AddRange(response.ToList());
-            }
+					results.AddRange(response.ToList());
+				}
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
 
             return results;
         }

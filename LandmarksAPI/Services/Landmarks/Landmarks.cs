@@ -66,6 +66,32 @@ namespace LandmarksAPI.Services
 			return FetchAllUrlsForLocation(location);
 		}
 
+		public async Task<List<string>> GetImageDetaisByLocation(string locationName)
+		{
+			List<string> urls = new List<string>();
+
+			string queryString = "SELECT * FROM c where c.city='" + locationName + "' and c.userid='" + "1" + "'";
+			var items = await _cosmosDbService.GetItemsAsync(queryString);
+			if (items.ToArray().Length == 0) return urls;
+
+			List<Landmark> landmarks = new List<Landmark>();
+			List<Models.Photo> photos = new List<Models.Photo>();
+			foreach (Models.Location location in items)
+			{
+				landmarks.AddRange(location.Landmarks);
+			}
+			foreach (Landmark landmark in landmarks)
+			{
+				photos.AddRange(landmark.Images);
+			}
+			foreach (Models.Photo photo in photos)
+			{
+				urls.Add(photo.Url);
+			}
+
+			return urls;
+		}
+
 		public async Task<List<string>> GetImagesByLocation(string locationName)
 		{
 			List<string> urls = new List<string>();
