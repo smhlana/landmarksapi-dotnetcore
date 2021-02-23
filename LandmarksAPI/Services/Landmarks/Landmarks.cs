@@ -22,7 +22,6 @@ namespace LandmarksAPI.Services
 
 		public async Task<List<string>> SearchAsync(string name)
 		{
-			List<string> urls = new List<string>();
 			var parameters = new Dictionary<string, string>
 			{
 				{"near", name},
@@ -36,7 +35,6 @@ namespace LandmarksAPI.Services
 
 		public async Task<List<string>> SearchAsync(string latitude, string longitude)
 		{
-			List<string> urls = new List<string>();
 			string latLong = $"{latitude},{longitude}";
 			var parameters = new Dictionary<string, string>
 			{
@@ -66,14 +64,14 @@ namespace LandmarksAPI.Services
 			return FetchAllUrlsForLocation(location);
 		}
 
-		public async Task<IEnumerable<Models.Location>> FetchAllAsync()
+		public async Task<IEnumerable<Models.Location>> FetchAllItemsAsync()
 		{
 			return await _cosmosDbService.GetItemsAsync("SELECT * FROM c where c.userid='1'");
 		}
 
 		public async Task<Models.Photo> GetImageDetaisByUrlAsync(string url)
 		{
-			var items = await FetchAllAsync();
+			var items = await FetchAllItemsAsync();
 
 			List<Landmark> landmarks = new List<Landmark>();
 			List<Models.Photo> photos = new List<Models.Photo>();
@@ -95,7 +93,7 @@ namespace LandmarksAPI.Services
 
 		public async Task<Models.Photo> GetImageDetaisByIdAsync(string id)
 		{
-			var items = await FetchAllAsync();
+			var items = await FetchAllItemsAsync();
 
 			List<Landmark> landmarks = new List<Landmark>();
 			List<Models.Photo> photos = new List<Models.Photo>();

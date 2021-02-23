@@ -28,7 +28,7 @@ namespace LandmarksAPI.Controllers
 		public async Task<IEnumerable<Location>> Index()
 		{
 			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
-			return await landmarks.FetchAllAsync();
+			return await landmarks.FetchAllItemsAsync();
 		}
 
 		// Get: api/landmarks/searchbyname/{name}
