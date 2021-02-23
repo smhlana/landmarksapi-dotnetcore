@@ -30,7 +30,7 @@ namespace LandmarksAPI.Controllers
 			return await _cosmosDbService.GetItemsAsync("SELECT * FROM c where c.userid='1'");
 		}
 
-		// Get: api/locations/searchbyname/{name}
+		// Get: api/landmarks/searchbyname/{name}
 		[HttpGet("searchbyname/{name}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string name)
 		{
@@ -38,7 +38,7 @@ namespace LandmarksAPI.Controllers
 			return await landmarks.SearchAsync(name);
 		}
 
-		// Get: api/locations/searchbylatlong/latitude/longitude
+		// Get: api/landmarks/searchbylatlong/latitude/longitude
 		[HttpGet("searchbylatlong/{latitude}/{longitude}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string latitude, string longitude)
 		{
@@ -46,7 +46,7 @@ namespace LandmarksAPI.Controllers
 			return await landmarks.SearchAsync(latitude, longitude);
 		}
 
-		// Get: api/locations/locationimages/locationName
+		// Get: api/landmarks/locationimages/locationName
 		[HttpGet("locationimages/{locationName}")]
 		public async Task<IEnumerable<string>> GetLocationImagesAsync(string locationName)
 		{
@@ -54,12 +54,12 @@ namespace LandmarksAPI.Controllers
 			return await landmarks.GetImagesByLocation(locationName);
 		}
 
-		//// Get: api/locations/imagedetailsbyurl?url=<url>
-		//[HttpGet("imagedetailsbyurl")]
-		//public async Task<Photo> GetImageDetailsByUrlAsync(string url)
-		//{
-		//	Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
-		//	return await landmarks.GetImageDetaisByLocation(url);
-		//}
+		// Get: api/landmarks/imagedetailsbyurl?url=<url>
+		[HttpGet("imagedetailsbyurl")]
+		public async Task<Photo> GetImageDetailsByUrlAsync(string url)
+		{
+			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
+			return await landmarks.GetImageDetaisByUrlAsync(url);
+		}
 	}
 }
