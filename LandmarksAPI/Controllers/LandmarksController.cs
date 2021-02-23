@@ -61,5 +61,13 @@ namespace LandmarksAPI.Controllers
 			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
 			return await landmarks.GetImageDetaisByUrlAsync(url);
 		}
+
+		// Get: api/landmarks/imagedetailsbyid?id=<id>
+		[HttpGet("imagedetailsbyid")]
+		public async Task<Photo> GetImageDetailsByIdAsync(string id)
+		{
+			Landmarks landmarks = new Landmarks(_fourSquareService, _flickrService, _cosmosDbService);
+			return await landmarks.GetImageDetaisByIdAsync(id);
+		}
 	}
 }

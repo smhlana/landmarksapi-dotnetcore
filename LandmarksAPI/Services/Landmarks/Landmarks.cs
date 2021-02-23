@@ -90,6 +90,30 @@ namespace LandmarksAPI.Services
 			return null;
 		}
 
+		public async Task<Models.Photo> GetImageDetaisByIdAsync(string id)
+		{
+			List<string> urls = new List<string>();
+			string queryString = "SELECT * FROM c where c.userid='1'";
+			var items = await _cosmosDbService.GetItemsAsync(queryString);
+
+			List<Landmark> landmarks = new List<Landmark>();
+			List<Models.Photo> photos = new List<Models.Photo>();
+			foreach (Models.Location location in items)
+			{
+				landmarks.AddRange(location.Landmarks);
+			}
+			foreach (Landmark landmark in landmarks)
+			{
+				photos.AddRange(landmark.Images);
+			}
+			foreach (Models.Photo photo in photos)
+			{
+				if (photo.PhotoId == id) return photo;
+			}
+
+			return null;
+		}
+
 		public async Task<List<string>> GetImagesByLocation(string locationName)
 		{
 			List<string> urls = new List<string>();
