@@ -59,3 +59,7 @@ namespace LandmarksAPI.Controllers
 		}
 	}
 }
+
+// create users dotnet core api
+// https://jasonwatmore.com/post/2019/10/14/aspnet-core-3-simple-api-for-authentication-registration-and-user-management
+// https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-5.0&tabs=visual-studio
