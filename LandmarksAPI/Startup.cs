@@ -1,4 +1,5 @@
 using LandmarksAPI.Services;
+using LandmarksAPI.Services.UsersDb;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -37,6 +38,20 @@ namespace LandmarksAPI
 			return cosmosDbService;
 		}
 
+		private static async Task<UsersDbService> InitializeUsersCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+		{
+			string databaseName = configurationSection.GetSection("DatabaseName").Value;
+			string containerName = configurationSection.GetSection("ContainerName").Value;
+			string account = configurationSection.GetSection("Account").Value;
+			string key = configurationSection.GetSection("Key").Value;
+			Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
+			UsersDbService cosmosDbService = new UsersDbService(client, databaseName, containerName);
+			Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+			await database.Database.CreateContainerIfNotExistsAsync(containerName, "/username");
+
+			return cosmosDbService;
+		}
+
 		private static async Task<FourSquareService> InitializeSharpSquareClientInstanceAsync(IConfigurationSection configurationSection)
 		{
 			string clientId = configurationSection.GetSection("ClientId").Value;
@@ -60,6 +75,8 @@ namespace LandmarksAPI
 			services.AddControllers();
 
 			services.AddSingleton<ICosmosDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+
+			services.AddSingleton<IUsersDbService>(InitializeUsersCosmosClientInstanceAsync(Configuration.GetSection("UsersDb")).GetAwaiter().GetResult());
 
 			services.AddSingleton<IFourSquareService>(InitializeSharpSquareClientInstanceAsync(Configuration.GetSection("FourSquare")).GetAwaiter().GetResult());
 
