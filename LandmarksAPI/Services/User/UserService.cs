@@ -49,6 +49,7 @@ namespace LandmarksAPI.Services.User
 
 			user.PasswordHash = passwordHash;
 			user.PasswordSalt = passwordSalt;
+			user.Id = Guid.NewGuid().ToString();
 
 			_userDbService.AddUserAsync(user);
 
@@ -96,7 +97,5 @@ namespace LandmarksAPI.Services.User
 
 			return true;
 		}
-
-		
 	}
 }

@@ -39,7 +39,8 @@ namespace LandmarksAPI.Services.UsersDb
 				throw;
 			}
 
-			return results[0];
+			if (results.Count > 0) return results[0];
+			return null;
 		}
 	}
 }
