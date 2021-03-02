@@ -13,10 +13,10 @@ using System.Text;
 
 namespace LandmarksAPI.Controllers
 {
-	[Authorize]
+	[Helpers.Authorize]
 	[Route("api/[controller]")]
 	[ApiController]
-	public class UsersController : ControllerBase
+	public class UsersController : BaseController
 	{
         private IUserService _userService;
 		private IMapper _mapper;
