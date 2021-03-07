@@ -34,7 +34,7 @@ namespace LandmarksAPI.Services
 					results.AddRange(response.ToList());
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				throw;
 			}
