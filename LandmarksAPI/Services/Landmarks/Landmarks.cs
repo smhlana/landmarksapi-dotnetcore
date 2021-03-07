@@ -21,7 +21,7 @@ namespace LandmarksAPI.Services
 			_cosmosDbService = cosmosDbService;
 		}
 
-		public async Task<List<string>> SearchAsync(string name)
+		public async Task<List<string>> SearchAsync(string userId, string name)
 		{
 			var parameters = new Dictionary<string, string>
 			{
@@ -31,10 +31,10 @@ namespace LandmarksAPI.Services
 				{"categoryId", "4bf58dd8d48988d12d941735"}
 			};
 
-			return await Search(parameters);
+			return await Search(userId, parameters);
 		}
 
-		public async Task<List<string>> SearchAsync(string latitude, string longitude)
+		public async Task<List<string>> SearchAsync(string userId, string latitude, string longitude)
 		{
 			string latLong = $"{latitude},{longitude}";
 			var parameters = new Dictionary<string, string>
@@ -45,17 +45,17 @@ namespace LandmarksAPI.Services
 				{"categoryId", "4bf58dd8d48988d12d941735"}
 			};
 
-			return await Search(parameters);
+			return await Search(userId, parameters);
 		}
 
-		private async Task<List<string>> Search(Dictionary<string, string> parameters)
+		private async Task<List<string>> Search(string userId, Dictionary<string, string> parameters)
 		{
 			List<string> urls = new List<string>();
 			List<Venue> venues = _fourSquareService.SearchVenues(parameters);
 			if (venues.Count == 0) return urls;
 
-			Models.Location location = await CreateLocationObjectAsync(venues, "1");
-			if (await DocumentExists(location, "1"))
+			Models.Location location = await CreateLocationObjectAsync(venues, userId);
+			if (await DocumentExists(location))
 			{
 				await _cosmosDbService.UpdateItemAsync(location);
 				return FetchAllUrlsForLocation(location);
@@ -115,11 +115,11 @@ namespace LandmarksAPI.Services
 			return null;
 		}
 
-		public async Task<List<string>> GetImagesByLocation(string locationName)
+		public async Task<List<string>> GetImagesByLocation(string userId, string locationName)
 		{
 			List<string> urls = new List<string>();
 
-			string queryString = "SELECT * FROM c where c.city='" + locationName + "' and c.userid='" + "1" + "'";
+			string queryString = "SELECT * FROM c where c.city='" + locationName + "' and c.userid='" + userId + "'";
 			var items = await _cosmosDbService.GetItemsAsync(queryString);
 			if (items.ToArray().Length == 0) return urls;
 
@@ -141,9 +141,9 @@ namespace LandmarksAPI.Services
 			return urls;
 		}
 
-		private async Task<bool> DocumentExists(Models.Location newLocation, string userId)
+		private async Task<bool> DocumentExists(Models.Location newLocation)
 		{
-			string queryString = "SELECT c.name FROM c where c.city='" + newLocation.Name + "' and c.userid='" + userId + "'";
+			string queryString = "SELECT c.name FROM c where c.city='" + newLocation.Name + "' and c.userid='" + newLocation.UserId + "'";
 			var items = await _cosmosDbService.GetItemsAsync(queryString);
 			if (items.ToArray().Length > 0) return true;
 			else return false;

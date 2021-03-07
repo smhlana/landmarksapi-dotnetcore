@@ -29,21 +29,21 @@ namespace LandmarksAPI.Controllers
 		[HttpGet("searchbyname/{name}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string name)
 		{
-			return await _landmarks.SearchAsync(name);
+			return await _landmarks.SearchAsync(AccountContext.Id, name);
 		}
 
 		// Get: api/landmarks/searchbylatlong/latitude/longitude
 		[HttpGet("searchbylatlong/{latitude}/{longitude}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string latitude, string longitude)
 		{
-			return await _landmarks.SearchAsync(latitude, longitude);
+			return await _landmarks.SearchAsync(AccountContext.Id, latitude, longitude);
 		}
 
 		// Get: api/landmarks/locationimages/locationName
 		[HttpGet("locationimages/{locationName}")]
 		public async Task<IEnumerable<string>> GetLocationImagesAsync(string locationName)
 		{
-			return await _landmarks.GetImagesByLocation(locationName);
+			return await _landmarks.GetImagesByLocation(AccountContext.Id,locationName);
 		}
 
 		// Get: api/landmarks/imagedetailsbyurl?url=<url>
