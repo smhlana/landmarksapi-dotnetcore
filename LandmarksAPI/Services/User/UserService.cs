@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BC = BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace LandmarksAPI.Services.User
 {
@@ -62,7 +63,7 @@ namespace LandmarksAPI.Services.User
 			var user = await _userDbService.GetUserAsync(model.Username);
 			if (user != null)
 			{
-				return new OkObjectResult(new { message = "A user with this username has already been registered." });
+				return new JsonResult(new { message = "A user with this username has already been registered." }) { StatusCode = StatusCodes.Status200OK };
 			}
 
 			// map model to new account object
@@ -79,7 +80,7 @@ namespace LandmarksAPI.Services.User
 			// save account
 			await _userDbService.AddUserAsync(account);
 
-			return new OkObjectResult(new { message = "Registration successful." });
+			return new JsonResult(new { message = "Registration successful." }) { StatusCode = StatusCodes.Status201Created };
 		}
 
 		public IEnumerable<Entities.User> GetAll()

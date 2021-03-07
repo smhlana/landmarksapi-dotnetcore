@@ -39,8 +39,7 @@ namespace LandmarksAPI.Controllers
 		[HttpPost("register")]
 		public async System.Threading.Tasks.Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
 		{
-			await _userService.RegisterAsync(model, Request.Headers["origin"]);
-			return Ok(new { message = "Registration successful." });
+			return await _userService.RegisterAsync(model, Request.Headers["origin"]);
 		}
 
 		private string IpAddress()
