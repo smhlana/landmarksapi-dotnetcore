@@ -45,7 +45,7 @@ namespace LandmarksAPI.Services.User
 			account.RefreshTokens.Add(refreshToken);
 
 			// remove old refresh tokens from account
-			//removeOldRefreshTokens(account);
+			removeOldRefreshTokens(account);
 
 			// update DB
 			await _userDbService.UpdateItemAsync(account);
@@ -105,6 +105,13 @@ namespace LandmarksAPI.Services.User
 			};
 			var token = tokenHandler.CreateToken(tokenDescriptor);
 			return tokenHandler.WriteToken(token);
+		}
+
+		private void removeOldRefreshTokens(Account account)
+		{
+			account.RefreshTokens.RemoveAll(x =>
+				!x.IsActive &&
+				x.Created.AddDays(_appSettings.RefreshTokenTTL) <= DateTime.UtcNow);
 		}
 
 		private RefreshToken GenerateRefreshToken(Account account, string ipAddress)
