@@ -1,59 +1,85 @@
-﻿using LandmarksAPI.Services.UsersDb;
+﻿using AutoMapper;
+using LandmarksAPI.Entities;
+using LandmarksAPI.Helpers;
+using LandmarksAPI.Models.Users;
+using LandmarksAPI.Services.UsersDb;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
+using BC = BCrypt.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LandmarksAPI.Services.User
 {
 	public class UserService : IUserService
 	{
 		private IUsersDbService _userDbService;
+		private readonly IMapper _mapper;
+		private readonly AppSettings _appSettings;
 
-		public UserService(IUsersDbService userDbService)
+		public UserService(IUsersDbService userDbService, IMapper mapper, IOptions<AppSettings> appSettings)
 		{
 			_userDbService = userDbService;
+			_mapper = mapper;
+			_appSettings = appSettings.Value;
 		}
 
-		public async Task<Entities.User> AuthenticateAsync(string username, string password)
+		public async Task<AuthenticateResponse> AuthenticateAsync(AuthenticateRequest model, string ipAddress)
 		{
-			if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+			if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
+				throw new Exception("Username or password is incorrect");
+
+			Account account = await _userDbService.GetUserAsync(model.Username);
+
+			if (account == null || !BC.BCrypt.Verify(model.Password, account.PasswordHash))
 				return null;
 
-			Entities.User user = await _userDbService.GetUserAsync(username);
+			// authentication successful so generate jwt and refresh tokens
+			var jwtToken = GenerateJwtToken(account);
+			var refreshToken = GenerateRefreshToken(account, ipAddress);
+			account.RefreshTokens.Add(refreshToken);
 
-			// check if username exists
-			if (user == null)
-				return null;
+			// remove old refresh tokens from account
+			//removeOldRefreshTokens(account);
 
-			// check if password is correct
-			if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-				return null;
+			// update DB
+			await _userDbService.UpdateItemAsync(account);
 
-			// authentication successful
-			return user;
+			AuthenticateResponse response = _mapper.Map<AuthenticateResponse>(account);
+			response.JwtToken = jwtToken;
+			response.RefreshToken = refreshToken.Token;
+			return response;
 		}
 
-		public async Task<Entities.User> CreateAsync(Entities.User user, string password)
+		public async Task<IActionResult> RegisterAsync(RegisterRequest model, string origin)
 		{
-			// validation
-			if (string.IsNullOrWhiteSpace(password))
-				throw new Exception("Password is required");
+			// validate
+			var user = await _userDbService.GetUserAsync(model.Username);
+			if (user != null)
+			{
+				return new OkObjectResult(new { message = "A user with this username has already been registered." });
+			}
 
-			Entities.User dbUser = await _userDbService.GetUserAsync(user.Username);
-			if (dbUser != null)
-				throw new Exception("Username \"" + user.Username + "\" is already taken");
+			// map model to new account object
+			Account account = _mapper.Map<Account>(model);
 
-			byte[] passwordHash, passwordSalt;
-			CreatePasswordHash(password, out passwordHash, out passwordSalt);
+			account.Id = Guid.NewGuid().ToString();
+			account.Created = DateTime.UtcNow;
+			account.VerificationToken = GenerateJwtToken(account);
+			account.RefreshTokens = new List<RefreshToken>();
 
-			user.PasswordHash = passwordHash;
-			user.PasswordSalt = passwordSalt;
-			user.Id = Guid.NewGuid().ToString();
+			// hash password
+			account.PasswordHash = BC.BCrypt.HashPassword(model.Password);
 
-			_userDbService.AddUserAsync(user);
+			// save account
+			await _userDbService.AddUserAsync(account);
 
-			return user;
+			return new OkObjectResult(new { message = "Registration successful." });
 		}
 
 		public IEnumerable<Entities.User> GetAll()
@@ -61,41 +87,35 @@ namespace LandmarksAPI.Services.User
 			throw new NotImplementedException();
 		}
 
-		public Entities.User GetById(int id)
+		public async Task<Account> GetById(string id)
 		{
-			throw new NotImplementedException();
+			return await _userDbService.GetUserByIdAsync(id);
 		}
 
 		// private helper methods
-		private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+		private string GenerateJwtToken(Account account)
 		{
-			if (password == null) throw new ArgumentNullException("password");
-			if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-
-			using (var hmac = new System.Security.Cryptography.HMACSHA512())
+			var tokenHandler = new JwtSecurityTokenHandler();
+			var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+			var tokenDescriptor = new SecurityTokenDescriptor
 			{
-				passwordSalt = hmac.Key;
-				passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-			}
+				Subject = new ClaimsIdentity(new[] { new Claim("id", account.Id.ToString()) }),
+				Expires = DateTime.UtcNow.AddMinutes(1440),
+				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+			};
+			var token = tokenHandler.CreateToken(tokenDescriptor);
+			return tokenHandler.WriteToken(token);
 		}
 
-		private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
+		private RefreshToken GenerateRefreshToken(Account account, string ipAddress)
 		{
-			if (password == null) throw new ArgumentNullException("password");
-			if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-			if (storedHash.Length != 64) throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
-			if (storedSalt.Length != 128) throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
-
-			using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
+			return new RefreshToken
 			{
-				var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-				for (int i = 0; i < computedHash.Length; i++)
-				{
-					if (computedHash[i] != storedHash[i]) return false;
-				}
-			}
-
-			return true;
+				Token = GenerateJwtToken(account),
+				Expires = DateTime.UtcNow.AddDays(7),
+				Created = DateTime.UtcNow,
+				CreatedByIp = ipAddress
+			};
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LandmarksAPI.Entities;
 using LandmarksAPI.Models.Users;
 
 namespace LandmarksAPI.Helpers
@@ -7,8 +8,17 @@ namespace LandmarksAPI.Helpers
 	{
         public AutoMapperProfile()
         {
-            CreateMap<Entities.User, User>();
-            CreateMap<Register, Entities.User>();
+            CreateMap<Entities.User, Models.Users.User>();
+            CreateMap<RegisterRequest, Entities.User>();
+
+            CreateMap<Account, AccountResponse>();
+
+            CreateMap<Account, AuthenticateResponse>();
+
+            CreateMap<RegisterRequest, Account>();
+
+            CreateMap<CreateRequest, Account>();
+
         }
     }
 }

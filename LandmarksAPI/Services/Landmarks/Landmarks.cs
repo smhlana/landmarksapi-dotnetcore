@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LandmarksAPI.Models;
 using FlickrNet;
+using LandmarksAPI.Entities;
 
 namespace LandmarksAPI.Services
 {
@@ -64,14 +65,15 @@ namespace LandmarksAPI.Services
 			return FetchAllUrlsForLocation(location);
 		}
 
-		public async Task<IEnumerable<Models.Location>> FetchAllItemsAsync()
+		public async Task<IEnumerable<Models.Location>> FetchAllItemsAsync(string userId)
 		{
-			return await _cosmosDbService.GetItemsAsync("SELECT * FROM c where c.userid='1'");
+			string queryString = "SELECT * FROM c where c.userid='" + userId + "'";
+			return await _cosmosDbService.GetItemsAsync(queryString);
 		}
 
-		public async Task<Models.Photo> GetImageDetaisByUrlAsync(string url)
+		public async Task<Models.Photo> GetImageDetaisByUrlAsync(string userId, string url)
 		{
-			var items = await FetchAllItemsAsync();
+			var items = await FetchAllItemsAsync(userId);
 
 			List<Landmark> landmarks = new List<Landmark>();
 			List<Models.Photo> photos = new List<Models.Photo>();
@@ -91,9 +93,9 @@ namespace LandmarksAPI.Services
 			return null;
 		}
 
-		public async Task<Models.Photo> GetImageDetaisByIdAsync(string id)
+		public async Task<Models.Photo> GetImageDetaisByIdAsync(string userId, string imageId)
 		{
-			var items = await FetchAllItemsAsync();
+			var items = await FetchAllItemsAsync(userId);
 
 			List<Landmark> landmarks = new List<Landmark>();
 			List<Models.Photo> photos = new List<Models.Photo>();
@@ -107,7 +109,7 @@ namespace LandmarksAPI.Services
 			}
 			foreach (Models.Photo photo in photos)
 			{
-				if (photo.PhotoId == id) return photo;
+				if (photo.PhotoId == imageId) return photo;
 			}
 
 			return null;

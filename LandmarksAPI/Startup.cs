@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LandmarksAPI.Middleware;
 
 namespace LandmarksAPI
 {
@@ -110,7 +111,7 @@ namespace LandmarksAPI
 					OnTokenValidated = context =>
 					{
 						var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-						var userId = int.Parse(context.Principal.Identity.Name);
+						var userId = context.Principal.Identity.Name;
 						var user = userService.GetById(userId);
 						if (user == null)
 						{
@@ -148,6 +149,14 @@ namespace LandmarksAPI
 			app.UseRouting();
 
 			app.UseAuthorization();
+
+			app.UseCors(x => x
+				.SetIsOriginAllowed(origin => true)
+				.AllowAnyMethod()
+				.AllowAnyHeader()
+				.AllowCredentials());
+
+			app.UseMiddleware<JwtMiddleware>();
 
 			app.UseEndpoints(endpoints =>
 			{

@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using LandmarksAPI.Entities;
+using LandmarksAPI.Models.Users;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LandmarksAPI.Services.User
 {
 	public interface IUserService
 	{
-        Task<Entities.User> AuthenticateAsync(string username, string password);
+        Task<AuthenticateResponse> AuthenticateAsync(AuthenticateRequest model, string ipAddress);
         IEnumerable<Entities.User> GetAll();
-        Entities.User GetById(int id);
-        Task<Entities.User> CreateAsync(Entities.User user, string password);
+        Task<Account> GetById(string id);
+        Task<IActionResult> RegisterAsync(RegisterRequest model, string origin);
     }
 }

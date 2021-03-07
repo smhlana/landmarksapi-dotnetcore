@@ -1,10 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using LandmarksAPI.Entities;
+using System.Threading.Tasks;
 
 namespace LandmarksAPI.Services.UsersDb
 {
 	public interface IUsersDbService
 	{
-		Task<Entities.User> GetUserAsync(string username);
-		void AddUserAsync(Entities.User user);
+		Task<Account> GetUserAsync(string username);
+		Task<Account> GetUserByIdAsync(string id);
+		Task AddUserAsync(Account user);
+		Task UpdateItemAsync(Account user);
 	}
 }

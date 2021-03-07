@@ -2,7 +2,7 @@
 
 namespace LandmarksAPI.Models.Users
 {
-	public class Authenticate
+	public class AuthenticateRequest
 	{
 		[Required]
 		public string Username { get; set; }

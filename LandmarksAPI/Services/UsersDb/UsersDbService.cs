@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using LandmarksAPI.Entities;
+using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,16 +16,16 @@ namespace LandmarksAPI.Services.UsersDb
 			_container = dbClient.GetContainer(databaseName, containerName);
 		}
 
-		public async void AddUserAsync(Entities.User user)
+		public async Task AddUserAsync(Account user)
 		{
 			await _container.CreateItemAsync(user, new PartitionKey(user.Username));
 		}
 
-		public async Task<Entities.User> GetUserAsync(string username)
+		public async Task<Account> GetUserAsync(string username)
 		{
 			string queryString = "SELECT * FROM c where c.username='" + username + "'";
-			var query = _container.GetItemQueryIterator<Entities.User>(new QueryDefinition(queryString));
-			List<Entities.User> results = new List<Entities.User>();
+			var query = _container.GetItemQueryIterator<Account>(new QueryDefinition(queryString));
+			List<Account> results = new List<Account>();
 			try
 			{
 				while (query.HasMoreResults)
@@ -41,6 +42,34 @@ namespace LandmarksAPI.Services.UsersDb
 
 			if (results.Count > 0) return results[0];
 			return null;
+		}
+
+		public async Task<Account> GetUserByIdAsync(string id)
+		{
+			string queryString = "SELECT * FROM c where c.id='" + id + "'";
+			var query = _container.GetItemQueryIterator<Account>(new QueryDefinition(queryString));
+			List<Account> results = new List<Account>();
+			try
+			{
+				while (query.HasMoreResults)
+				{
+					var response = await query.ReadNextAsync();
+
+					results.AddRange(response.ToList());
+				}
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+
+			if (results.Count > 0) return results[0];
+			return null;
+		}
+
+		public async Task UpdateItemAsync(Account user)
+		{
+			await _container.UpsertItemAsync<Account>(user, new PartitionKey(user.Username));
 		}
 	}
 }

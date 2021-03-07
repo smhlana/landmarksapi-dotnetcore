@@ -1,4 +1,5 @@
-﻿using LandmarksAPI.Models;
+﻿using LandmarksAPI.Helpers;
+using LandmarksAPI.Models;
 using LandmarksAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -6,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace LandmarksAPI.Controllers
 {
+	[Authorize]
 	[ApiController]
 	[Route("api/[controller]")]
-	public class LandmarksController : ControllerBase
+	public class LandmarksController : BaseController
 	{
 		private readonly Landmarks _landmarks;
 		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService)
@@ -20,7 +22,7 @@ namespace LandmarksAPI.Controllers
 		[HttpGet]
 		public async Task<IEnumerable<Location>> Index()
 		{
-			return await _landmarks.FetchAllItemsAsync();
+			return await _landmarks.FetchAllItemsAsync(AccountContext.Id);
 		}
 
 		// Get: api/landmarks/searchbyname/{name}
@@ -48,14 +50,14 @@ namespace LandmarksAPI.Controllers
 		[HttpGet("imagedetailsbyurl")]
 		public async Task<Photo> GetImageDetailsByUrlAsync(string url)
 		{
-			return await _landmarks.GetImageDetaisByUrlAsync(url);
+			return await _landmarks.GetImageDetaisByUrlAsync(AccountContext.Id, url);
 		}
 
 		// Get: api/landmarks/imagedetailsbyid?id=<id>
 		[HttpGet("imagedetailsbyid")]
 		public async Task<Photo> GetImageDetailsByIdAsync(string id)
 		{
-			return await _landmarks.GetImageDetaisByIdAsync(id);
+			return await _landmarks.GetImageDetaisByIdAsync(AccountContext.Id, id);
 		}
 	}
 }
