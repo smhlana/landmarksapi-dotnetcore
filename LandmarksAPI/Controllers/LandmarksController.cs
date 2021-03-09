@@ -19,7 +19,7 @@ namespace LandmarksAPI.Controllers
 		private readonly IDistributedCache _cache;
 		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService, IDistributedCache cache)
 		{
-			 _landmarks = new Landmarks(fourSquareService, flickrService, cosmosDbService);
+			 _landmarks = new Landmarks(fourSquareService, flickrService, cosmosDbService, cache);
 			_cache = cache;
 		}
 
@@ -34,55 +34,21 @@ namespace LandmarksAPI.Controllers
 		[HttpGet("searchbyname/{name}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string name)
 		{
-			string cachedUrls = _cache.GetString(AccountContext.Id + "_url_" + name.ToLower());
-			List<string> urls;
-			if (string.IsNullOrEmpty(cachedUrls))
-			{
-				urls = await _landmarks.SearchAsync(AccountContext.Id, name);
-				if (urls.Count > 0)
-				{
-					DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
-					options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
-					_cache.SetString(AccountContext.Id + "_url_" + name.ToLower(), JsonConvert.SerializeObject(urls), options);
-				}
-			}
-			else
-			{
-				urls = JsonConvert.DeserializeObject<List<string>>(cachedUrls);
-			}
-			return urls;
+			return await _landmarks.SearchAsync(AccountContext.Id, name);
 		}
 
 		// Get: api/landmarks/searchbylatlong/latitude/longitude
 		[HttpGet("searchbylatlong/{latitude}/{longitude}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string latitude, string longitude)
 		{
-			Location locationDetails = await _landmarks.FetchLocationDetailsAsync(AccountContext.Id, latitude, longitude);
-			string cachedUrls = _cache.GetString(AccountContext.Id + "_url_" + locationDetails.Name.ToLower());
-			List<string> urls;
-			if (string.IsNullOrEmpty(cachedUrls))
-			{
-				urls = await _landmarks.SearchAsync(locationDetails);
-				if (urls.Count > 0)
-				{
-					DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
-					options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
-					_cache.SetString(AccountContext.Id + "_url_" + locationDetails.Name.ToLower(), JsonConvert.SerializeObject(urls), options);
-				}
-			}
-			else
-			{
-				urls = JsonConvert.DeserializeObject<List<string>>(cachedUrls);
-			}
-			
-			return urls;
+			return await _landmarks.SearchAsync(AccountContext.Id, latitude, longitude);
 		}
 
 		// Get: api/landmarks/locationimages/locationName
 		[HttpGet("locationimages/{locationName}")]
 		public async Task<IEnumerable<string>> GetLocationImagesAsync(string locationName)
 		{
-			return await _landmarks.GetImagesByLocation(AccountContext.Id,locationName);
+			return await _landmarks.GetImagesByLocation(AccountContext.Id, locationName);
 		}
 
 		// Get: api/landmarks/imagedetailsbyurl?url=<url>

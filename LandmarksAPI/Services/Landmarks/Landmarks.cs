@@ -5,23 +5,37 @@ using System.Linq;
 using System.Threading.Tasks;
 using LandmarksAPI.Models;
 using FlickrNet;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 
 namespace LandmarksAPI.Services
 {
 	public class Landmarks
 	{
-		IFourSquareService _fourSquareService;
-		IFlickrService _flickrService;
-		ICosmosDbService _cosmosDbService;
-		public Landmarks(IFourSquareService fourSquareService, IFlickrService flickrService, ICosmosDbService cosmosDbService)
+		private readonly IDistributedCache _cache;
+		private readonly IFourSquareService _fourSquareService;
+		private readonly IFlickrService _flickrService;
+		private readonly ICosmosDbService _cosmosDbService;
+
+		public Landmarks(IFourSquareService fourSquareService, IFlickrService flickrService, ICosmosDbService cosmosDbService, IDistributedCache cache)
 		{
 			_fourSquareService = fourSquareService;
 			_flickrService = flickrService;
 			_cosmosDbService = cosmosDbService;
+			_cache = cache;
 		}
 
 		public async Task<List<string>> SearchAsync(string userId, string name)
 		{
+			string cacheKey = userId + "_url_" + name.ToLower();
+			string cachedUrls = _cache.GetString(cacheKey);
+			List<string> urls;
+
+			if (!string.IsNullOrEmpty(cachedUrls))
+			{
+				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
+			}
+
 			var parameters = new Dictionary<string, string>
 			{
 				{"near", name},
@@ -30,12 +44,26 @@ namespace LandmarksAPI.Services
 				{"categoryId", "4bf58dd8d48988d12d941735"}
 			};
 
-			return await Search(userId, parameters);
+			urls = await Search(userId, parameters);
+			CacheResults(cacheKey, urls);
+			return urls;
 		}
 
-		public async Task<List<string>> SearchAsync(Models.Location location)
+		public async Task<List<string>> SearchAsync(string userId, string latitude, string longitude)
 		{
-			return await FetchLocationUrls(location);
+			Models.Location location = await FetchLocationDetailsAsync(userId, latitude, longitude);
+			string cacheKey = userId + "_url_" + location.Name.ToLower();
+			string cachedUrls = _cache.GetString(cacheKey);
+			List<string> urls;
+
+			if (!string.IsNullOrEmpty(cachedUrls))
+			{
+				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
+			}
+
+			urls = await FetchLocationUrls(location);
+			CacheResults(cacheKey, urls);
+			return urls;
 		}
 
 		public async Task<Models.Location> FetchLocationDetailsAsync(string userId, string latitude, string longitude)
@@ -50,32 +78,6 @@ namespace LandmarksAPI.Services
 			};
 
 			return await GetLocationObject(userId, parameters);
-		}
-
-		private async Task<List<string>> Search(string userId, Dictionary<string, string> parameters)
-		{
-			Models.Location location = await GetLocationObject(userId, parameters);
-			return await FetchLocationUrls(location);
-		}
-
-		private async Task<List<string>> FetchLocationUrls(Models.Location location)
-		{
-			if (await DocumentExists(location))
-			{
-				await _cosmosDbService.UpdateItemAsync(location);
-				return FetchAllUrlsForLocation(location);
-			}
-
-			_cosmosDbService.AddItemAsync(location);
-			return FetchAllUrlsForLocation(location);
-		}
-
-		private async Task<Models.Location> GetLocationObject(string userId, Dictionary<string, string> parameters)
-		{
-			List<Venue> venues = _fourSquareService.SearchVenues(parameters);
-			if (venues.Count == 0) return null;
-
-			return await CreateLocationObjectAsync(venues, userId);
 		}
 
 		public async Task<IEnumerable<Models.Location>> FetchAllItemsAsync(string userId)
@@ -130,11 +132,18 @@ namespace LandmarksAPI.Services
 
 		public async Task<List<string>> GetImagesByLocation(string userId, string locationName)
 		{
+			string cacheKey = userId + "_url_" + locationName.ToLower();
+			string cachedUrls = _cache.GetString(cacheKey);
 			List<string> urls = new List<string>();
+
+			if (!string.IsNullOrEmpty(cachedUrls))
+			{
+				return JsonConvert.DeserializeObject<List<string>>(cachedUrls); ;
+			}
 
 			string queryString = "SELECT * FROM c where c.city='" + locationName + "' and c.userid='" + userId + "'";
 			var items = await _cosmosDbService.GetItemsAsync(queryString);
-			if (items.ToArray().Length == 0) return urls;
+			if (items.ToArray().Length == 0) return null;
 
 			List<Landmark> landmarks = new List<Landmark>();
 			List<Models.Photo> photos = new List<Models.Photo>();
@@ -151,7 +160,45 @@ namespace LandmarksAPI.Services
 				urls.Add(photo.Url);
 			}
 
+			CacheResults(cacheKey, urls);
 			return urls;
+		}
+
+		private void CacheResults(string key, List<string> value)
+		{
+			if (value.Count > 0)
+			{
+				DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
+				options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
+				_cache.SetString(key, JsonConvert.SerializeObject(value), options);
+			}
+
+		}
+
+		private async Task<List<string>> Search(string userId, Dictionary<string, string> parameters)
+		{
+			Models.Location location = await GetLocationObject(userId, parameters);
+			return await FetchLocationUrls(location);
+		}
+
+		private async Task<List<string>> FetchLocationUrls(Models.Location location)
+		{
+			if (await DocumentExists(location))
+			{
+				await _cosmosDbService.UpdateItemAsync(location);
+				return FetchAllUrlsForLocation(location);
+			}
+
+			_cosmosDbService.AddItemAsync(location);
+			return FetchAllUrlsForLocation(location);
+		}
+
+		private async Task<Models.Location> GetLocationObject(string userId, Dictionary<string, string> parameters)
+		{
+			List<Venue> venues = _fourSquareService.SearchVenues(parameters);
+			if (venues.Count == 0) return null;
+
+			return await CreateLocationObjectAsync(venues, userId);
 		}
 
 		private async Task<bool> DocumentExists(Models.Location newLocation)
