@@ -56,7 +56,7 @@ namespace LandmarksAPI.Middleware
                 // attach account to context on successful jwt validation
                 context.Items["Account"] = await _userDbService.GetUserByIdAsync(accountId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }

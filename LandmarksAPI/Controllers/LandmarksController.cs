@@ -2,8 +2,11 @@
 using LandmarksAPI.Models;
 using LandmarksAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace LandmarksAPI.Controllers
 {
@@ -13,9 +16,11 @@ namespace LandmarksAPI.Controllers
 	public class LandmarksController : BaseController
 	{
 		private readonly Landmarks _landmarks;
-		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService)
+		private readonly IDistributedCache _cache;
+		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService, IDistributedCache cache)
 		{
 			 _landmarks = new Landmarks(fourSquareService, flickrService, cosmosDbService);
+			_cache = cache;
 		}
 
 		// Get: api/landmarks
@@ -29,14 +34,48 @@ namespace LandmarksAPI.Controllers
 		[HttpGet("searchbyname/{name}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string name)
 		{
-			return await _landmarks.SearchAsync(AccountContext.Id, name);
+			string cachedUrls = _cache.GetString(AccountContext.Id + "_url_" + name.ToLower());
+			List<string> urls;
+			if (string.IsNullOrEmpty(cachedUrls))
+			{
+				urls = await _landmarks.SearchAsync(AccountContext.Id, name);
+				if (urls.Count > 0)
+				{
+					DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
+					options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
+					_cache.SetString(AccountContext.Id + "_url_" + name.ToLower(), JsonConvert.SerializeObject(urls), options);
+				}
+			}
+			else
+			{
+				urls = JsonConvert.DeserializeObject<List<string>>(cachedUrls);
+			}
+			return urls;
 		}
 
 		// Get: api/landmarks/searchbylatlong/latitude/longitude
 		[HttpGet("searchbylatlong/{latitude}/{longitude}")]
 		public async Task<IEnumerable<string>> SearchLandmarksAsync(string latitude, string longitude)
 		{
-			return await _landmarks.SearchAsync(AccountContext.Id, latitude, longitude);
+			Location locationDetails = await _landmarks.FetchLocationDetailsAsync(AccountContext.Id, latitude, longitude);
+			string cachedUrls = _cache.GetString(AccountContext.Id + "_url_" + locationDetails.Name.ToLower());
+			List<string> urls;
+			if (string.IsNullOrEmpty(cachedUrls))
+			{
+				urls = await _landmarks.SearchAsync(locationDetails);
+				if (urls.Count > 0)
+				{
+					DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
+					options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
+					_cache.SetString(AccountContext.Id + "_url_" + locationDetails.Name.ToLower(), JsonConvert.SerializeObject(urls), options);
+				}
+			}
+			else
+			{
+				urls = JsonConvert.DeserializeObject<List<string>>(cachedUrls);
+			}
+			
+			return urls;
 		}
 
 		// Get: api/landmarks/locationimages/locationName

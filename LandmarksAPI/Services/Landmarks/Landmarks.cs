@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using LandmarksAPI.Models;
 using FlickrNet;
-using LandmarksAPI.Entities;
 
 namespace LandmarksAPI.Services
 {
@@ -34,7 +33,12 @@ namespace LandmarksAPI.Services
 			return await Search(userId, parameters);
 		}
 
-		public async Task<List<string>> SearchAsync(string userId, string latitude, string longitude)
+		public async Task<List<string>> SearchAsync(Models.Location location)
+		{
+			return await FetchLocationUrls(location);
+		}
+
+		public async Task<Models.Location> FetchLocationDetailsAsync(string userId, string latitude, string longitude)
 		{
 			string latLong = $"{latitude},{longitude}";
 			var parameters = new Dictionary<string, string>
@@ -45,16 +49,17 @@ namespace LandmarksAPI.Services
 				{"categoryId", "4bf58dd8d48988d12d941735"}
 			};
 
-			return await Search(userId, parameters);
+			return await GetLocationObject(userId, parameters);
 		}
 
 		private async Task<List<string>> Search(string userId, Dictionary<string, string> parameters)
 		{
-			List<string> urls = new List<string>();
-			List<Venue> venues = _fourSquareService.SearchVenues(parameters);
-			if (venues.Count == 0) return urls;
+			Models.Location location = await GetLocationObject(userId, parameters);
+			return await FetchLocationUrls(location);
+		}
 
-			Models.Location location = await CreateLocationObjectAsync(venues, userId);
+		private async Task<List<string>> FetchLocationUrls(Models.Location location)
+		{
 			if (await DocumentExists(location))
 			{
 				await _cosmosDbService.UpdateItemAsync(location);
@@ -63,6 +68,14 @@ namespace LandmarksAPI.Services
 
 			_cosmosDbService.AddItemAsync(location);
 			return FetchAllUrlsForLocation(location);
+		}
+
+		private async Task<Models.Location> GetLocationObject(string userId, Dictionary<string, string> parameters)
+		{
+			List<Venue> venues = _fourSquareService.SearchVenues(parameters);
+			if (venues.Count == 0) return null;
+
+			return await CreateLocationObjectAsync(venues, userId);
 		}
 
 		public async Task<IEnumerable<Models.Location>> FetchAllItemsAsync(string userId)
@@ -165,11 +178,11 @@ namespace LandmarksAPI.Services
 			return urls;
 		}
 
-		private async Task<Models.Location> CreateLocationObjectAsync(List<Venue> venues, string user)
+		private async Task<Models.Location> CreateLocationObjectAsync(List<Venue> venues, string userId)
 		{
 			Models.Location location = new Models.Location
 			{
-				UserId = user,
+				UserId = userId,
 				Name = null,
 				Id = Guid.NewGuid().ToString(),
 				Latitude = null,
