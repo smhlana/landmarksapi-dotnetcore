@@ -88,6 +88,21 @@ namespace LandmarksAPI.Services
 
 		public async Task<Models.Photo> GetImageDetaisByUrlAsync(string userId, string url)
 		{
+			string cacheKey = userId + "_image";
+			string cachedImagesSerialized = _cache.GetString(cacheKey);
+			List<Models.Photo> cachedImages = new List<Models.Photo>();
+
+			if (cachedImagesSerialized != null)
+			{
+				cachedImages = JsonConvert.DeserializeObject<List<Models.Photo>>(cachedImagesSerialized);
+
+				if (cachedImages.Count > 0)
+				{
+					Models.Photo image = cachedImages.FirstOrDefault(img => img.Url == url);
+					if (image != null) return image;
+				}
+			}
+
 			var items = await FetchAllItemsAsync(userId);
 
 			List<Landmark> landmarks = new List<Landmark>();
@@ -102,7 +117,12 @@ namespace LandmarksAPI.Services
 			}
 			foreach (Models.Photo photo in photos)
 			{
-				if (photo.Url == url) return photo;
+				if (photo.Url == url) 
+				{
+					cachedImages.Add(photo);
+					CacheResults(cacheKey, cachedImages);
+					return photo;
+				} 
 			}
 
 			return null;
@@ -110,6 +130,21 @@ namespace LandmarksAPI.Services
 
 		public async Task<Models.Photo> GetImageDetaisByIdAsync(string userId, string imageId)
 		{
+			string cacheKey = userId + "_image";
+			string cachedImagesSerialized = _cache.GetString(cacheKey);
+			List<Models.Photo> cachedImages = new List<Models.Photo>();
+
+			if (cachedImagesSerialized != null)
+			{
+				cachedImages = JsonConvert.DeserializeObject<List<Models.Photo>>(cachedImagesSerialized);
+
+				if (cachedImages.Count > 0)
+				{
+					Models.Photo image = cachedImages.FirstOrDefault(img => img.PhotoId == imageId);
+					if (image != null) return image;
+				}
+			}
+
 			var items = await FetchAllItemsAsync(userId);
 
 			List<Landmark> landmarks = new List<Landmark>();
@@ -124,7 +159,12 @@ namespace LandmarksAPI.Services
 			}
 			foreach (Models.Photo photo in photos)
 			{
-				if (photo.PhotoId == imageId) return photo;
+				if (photo.PhotoId == imageId)
+				{
+					cachedImages.Add(photo);
+					CacheResults(cacheKey, cachedImages);
+					return photo;
+				}
 			}
 
 			return null;
@@ -138,7 +178,7 @@ namespace LandmarksAPI.Services
 
 			if (!string.IsNullOrEmpty(cachedUrls))
 			{
-				return JsonConvert.DeserializeObject<List<string>>(cachedUrls); ;
+				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
 			}
 
 			string queryString = "SELECT * FROM c where c.city='" + locationName + "' and c.userid='" + userId + "'";
@@ -172,7 +212,16 @@ namespace LandmarksAPI.Services
 				options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
 				_cache.SetString(key, JsonConvert.SerializeObject(value), options);
 			}
+		}
 
+		private void CacheResults(string key, List<Models.Photo> value)
+		{
+			if (value.Count > 0)
+			{
+				DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
+				options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
+				_cache.SetString(key, JsonConvert.SerializeObject(value), options);
+			}
 		}
 
 		private async Task<List<string>> Search(string userId, Dictionary<string, string> parameters)
