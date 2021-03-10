@@ -57,6 +57,16 @@ namespace LandmarksAPI.Services.User
 			return response;
 		}
 
+		public async Task<string> LogoutAsync(string userId)
+		{
+			Account account = await _userDbService.GetUserByIdAsync(userId);
+			if (account == null) return "User does not exist.";
+
+			ExpireAllRefreshTokens(account);
+			await _userDbService.UpdateItemAsync(account);
+			return "User has been logged out.";
+		}
+
 		public async Task<IActionResult> RegisterAsync(RegisterRequest model, string origin)
 		{
 			// validate
@@ -124,6 +134,15 @@ namespace LandmarksAPI.Services.User
 				Created = DateTime.UtcNow,
 				CreatedByIp = ipAddress
 			};
+		}
+
+		private void ExpireAllRefreshTokens(Account account)
+		{
+			foreach (RefreshToken token in account.RefreshTokens)
+			{
+				token.Expires = DateTime.UtcNow;
+				token.Revoked = DateTime.UtcNow;
+			}
 		}
 	}
 }
