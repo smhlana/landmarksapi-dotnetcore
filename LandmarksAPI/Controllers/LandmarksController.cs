@@ -2,6 +2,7 @@
 using LandmarksAPI.Models;
 using LandmarksAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,9 +14,11 @@ namespace LandmarksAPI.Controllers
 	public class LandmarksController : BaseController
 	{
 		private readonly Landmarks _landmarks;
-		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService)
+		private readonly IDistributedCache _cache;
+		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService, IDistributedCache cache)
 		{
-			 _landmarks = new Landmarks(fourSquareService, flickrService, cosmosDbService);
+			 _landmarks = new Landmarks(fourSquareService, flickrService, cosmosDbService, cache);
+			_cache = cache;
 		}
 
 		// Get: api/landmarks
@@ -43,7 +46,7 @@ namespace LandmarksAPI.Controllers
 		[HttpGet("locationimages/{locationName}")]
 		public async Task<IEnumerable<string>> GetLocationImagesAsync(string locationName)
 		{
-			return await _landmarks.GetImagesByLocation(AccountContext.Id,locationName);
+			return await _landmarks.GetImagesByLocation(AccountContext.Id, locationName);
 		}
 
 		// Get: api/landmarks/imagedetailsbyurl?url=<url>

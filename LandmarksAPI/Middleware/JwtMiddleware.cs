@@ -54,9 +54,14 @@ namespace LandmarksAPI.Middleware
                 var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
 
                 // attach account to context on successful jwt validation
-                context.Items["Account"] = await _userDbService.GetUserByIdAsync(accountId);
+                var account = await _userDbService.GetUserByIdAsync(accountId);
+				if (account.RefreshTokens != null)
+				{
+					var validToken = account.RefreshTokens.FirstOrDefault(t => t.Token == token);
+					if (validToken != null && !validToken.IsExpired) context.Items["Account"] = await _userDbService.GetUserByIdAsync(accountId); 
+				}
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }

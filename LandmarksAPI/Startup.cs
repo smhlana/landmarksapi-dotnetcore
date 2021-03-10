@@ -96,6 +96,13 @@ namespace LandmarksAPI
 			var appSettingsSection = Configuration.GetSection("AppSettings");
 			services.Configure<AppSettings>(appSettingsSection);
 
+			services.AddDistributedRedisCache(options =>
+			{
+				IConfigurationSection redisSetting = Configuration.GetSection("Redis");
+				string redisConnectionString = redisSetting.GetSection("ConnectionString").Value;
+				options.Configuration = redisConnectionString;
+			});
+
 			// configure jwt authentication
 			var appSettings = appSettingsSection.Get<AppSettings>();
 			var key = Encoding.ASCII.GetBytes(appSettings.Secret);

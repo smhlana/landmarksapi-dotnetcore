@@ -10,7 +10,6 @@ using System;
 
 namespace LandmarksAPI.Controllers
 {
-	//[Helpers.Authorize]
 	[Route("api/[controller]")]
 	[ApiController]
 	public class UsersController : BaseController
@@ -25,8 +24,7 @@ namespace LandmarksAPI.Controllers
 			_appSettings = appSettings.Value;
 		}
 
-		//[AllowAnonymous]
-		[HttpPost("authenticate")]
+		[HttpPost("login")]
 		public async System.Threading.Tasks.Task<IActionResult> AuthenticateAsync([FromBody] AuthenticateRequest model)
 		{
 			AuthenticateResponse response = await _userService.AuthenticateAsync(model, IpAddress());
@@ -35,7 +33,16 @@ namespace LandmarksAPI.Controllers
 			return Ok(response);
 		}
 
-		//[AllowAnonymous]
+		[Helpers.Authorize]
+		[HttpPost("logout")]
+		public async System.Threading.Tasks.Task<IActionResult> LogoutAsync()
+		{
+			string response = await _userService.LogoutAsync(AccountContext.Id);
+
+			deleteTokenCookie();
+			return Ok(response);
+		}
+
 		[HttpPost("register")]
 		public async System.Threading.Tasks.Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
 		{
@@ -59,5 +66,11 @@ namespace LandmarksAPI.Controllers
 			};
 			Response.Cookies.Append("refreshToken", token, cookieOptions);
 		}
+
+		private void deleteTokenCookie()
+		{
+			Response.Cookies.Delete("refreshToken");
+		}
+
 	}
 }
