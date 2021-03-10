@@ -16,6 +16,7 @@ namespace LandmarksAPI.Services
 		private readonly IFourSquareService _fourSquareService;
 		private readonly IFlickrService _flickrService;
 		private readonly ICosmosDbService _cosmosDbService;
+		private readonly TimeSpan CACHE_RETENTION_TIME = TimeSpan.FromSeconds(86400);
 
 		public Landmarks(IFourSquareService fourSquareService, IFlickrService flickrService, ICosmosDbService cosmosDbService, IDistributedCache cache)
 		{
@@ -209,7 +210,7 @@ namespace LandmarksAPI.Services
 			if (value.Count > 0)
 			{
 				DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
-				options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
+				options.SetAbsoluteExpiration(CACHE_RETENTION_TIME);
 				_cache.SetString(key, JsonConvert.SerializeObject(value), options);
 			}
 		}
@@ -219,7 +220,7 @@ namespace LandmarksAPI.Services
 			if (value.Count > 0)
 			{
 				DistributedCacheEntryOptions options = new DistributedCacheEntryOptions();
-				options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
+				options.SetAbsoluteExpiration(CACHE_RETENTION_TIME);
 				_cache.SetString(key, JsonConvert.SerializeObject(value), options);
 			}
 		}
