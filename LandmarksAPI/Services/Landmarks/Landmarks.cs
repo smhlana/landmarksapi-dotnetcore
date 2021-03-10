@@ -28,7 +28,7 @@ namespace LandmarksAPI.Services
 		public async Task<List<string>> SearchAsync(string userId, string name)
 		{
 			string cacheKey = userId + "_url_" + name.ToLower();
-			string cachedUrls = _cache.GetString(cacheKey);
+			string cachedUrls = GetCachedItem(cacheKey);
 			List<string> urls;
 
 			if (!string.IsNullOrEmpty(cachedUrls))
@@ -53,7 +53,7 @@ namespace LandmarksAPI.Services
 		{
 			Models.Location location = await FetchLocationDetailsAsync(userId, latitude, longitude);
 			string cacheKey = userId + "_url_" + location.Name.ToLower();
-			string cachedUrls = _cache.GetString(cacheKey);
+			string cachedUrls = GetCachedItem(cacheKey);
 			List<string> urls;
 
 			if (!string.IsNullOrEmpty(cachedUrls))
@@ -89,7 +89,7 @@ namespace LandmarksAPI.Services
 		public async Task<Models.Photo> GetImageDetaisByUrlAsync(string userId, string url)
 		{
 			string cacheKey = userId + "_image";
-			string cachedImagesSerialized = _cache.GetString(cacheKey);
+			string cachedImagesSerialized = GetCachedItem(cacheKey);
 			List<Models.Photo> cachedImages = new List<Models.Photo>();
 
 			if (cachedImagesSerialized != null)
@@ -131,7 +131,7 @@ namespace LandmarksAPI.Services
 		public async Task<Models.Photo> GetImageDetaisByIdAsync(string userId, string imageId)
 		{
 			string cacheKey = userId + "_image";
-			string cachedImagesSerialized = _cache.GetString(cacheKey);
+			string cachedImagesSerialized = GetCachedItem(cacheKey);
 			List<Models.Photo> cachedImages = new List<Models.Photo>();
 
 			if (cachedImagesSerialized != null)
@@ -173,7 +173,7 @@ namespace LandmarksAPI.Services
 		public async Task<List<string>> GetImagesByLocation(string userId, string locationName)
 		{
 			string cacheKey = userId + "_url_" + locationName.ToLower();
-			string cachedUrls = _cache.GetString(cacheKey);
+			string cachedUrls = GetCachedItem(cacheKey);
 			List<string> urls = new List<string>();
 
 			if (!string.IsNullOrEmpty(cachedUrls))
@@ -222,6 +222,21 @@ namespace LandmarksAPI.Services
 				options.SetAbsoluteExpiration(TimeSpan.FromSeconds(150));
 				_cache.SetString(key, JsonConvert.SerializeObject(value), options);
 			}
+		}
+
+		private string GetCachedItem(string key)
+		{
+			string item;
+			try
+			{
+				item = _cache.GetString(key);
+			}
+			catch
+			{
+				item = null;
+			}
+
+			return item;
 		}
 
 		private async Task<List<string>> Search(string userId, Dictionary<string, string> parameters)
