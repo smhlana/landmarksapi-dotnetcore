@@ -1,11 +1,7 @@
-﻿using AutoMapper;
-using LandmarksAPI.Helpers;
-using LandmarksAPI.Models.Users;
+﻿using LandmarksAPI.Models.Users;
 using LandmarksAPI.Services.User;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System;
 
 namespace LandmarksAPI.Controllers
@@ -15,13 +11,9 @@ namespace LandmarksAPI.Controllers
 	public class UsersController : BaseController
 	{
         private IUserService _userService;
-		private IMapper _mapper;
-		private readonly AppSettings _appSettings;
-        public UsersController(IUserService userService, IMapper mapper, IOptions<AppSettings> appSettings)
+        public UsersController(IUserService userService)
 		{
             _userService = userService;
-			_mapper = mapper;
-			_appSettings = appSettings.Value;
 		}
 
 		[HttpPost("login")]

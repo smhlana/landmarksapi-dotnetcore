@@ -14,11 +14,9 @@ namespace LandmarksAPI.Controllers
 	public class LandmarksController : BaseController
 	{
 		private readonly Landmarks _landmarks;
-		private readonly IDistributedCache _cache;
 		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService, IDistributedCache cache)
 		{
 			 _landmarks = new Landmarks(fourSquareService, flickrService, cosmosDbService, cache);
-			_cache = cache;
 		}
 
 		// Get: api/landmarks
