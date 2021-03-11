@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using BC = BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace LandmarksAPI.Services.User
 {
@@ -57,12 +58,15 @@ namespace LandmarksAPI.Services.User
 			return response;
 		}
 
-		public async Task<string> LogoutAsync(string userId)
+		public async Task<string> LogoutAsync(string userId, string token, string ipAddress)
 		{
 			Account account = await _userDbService.GetUserByIdAsync(userId);
-			if (account == null) return "User does not exist.";
+			if (account == null) throw new Exception("Invalid token or user does not exist.");
+			RefreshToken refreshToken = GetRefreshToken(account, token);
 
-			ExpireAllRefreshTokens(account);
+			refreshToken.Revoked = DateTime.UtcNow;
+			refreshToken.RevokedByIp = ipAddress;
+
 			await _userDbService.UpdateItemAsync(account);
 			return "User has been logged out.";
 		}
@@ -136,13 +140,11 @@ namespace LandmarksAPI.Services.User
 			};
 		}
 
-		private void ExpireAllRefreshTokens(Account account)
+		private RefreshToken GetRefreshToken(Account account, string token)
 		{
-			foreach (RefreshToken token in account.RefreshTokens)
-			{
-				token.Expires = DateTime.UtcNow;
-				token.Revoked = DateTime.UtcNow;
-			}
+			RefreshToken refreshToken = account.RefreshTokens.Single(t => t.Token == token);
+			if (!refreshToken.IsActive) throw new Exception("Invalid token");
+			return refreshToken;
 		}
 	}
 }

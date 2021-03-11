@@ -35,9 +35,13 @@ namespace LandmarksAPI.Controllers
 
 		[Helpers.Authorize]
 		[HttpPost("logout")]
-		public async System.Threading.Tasks.Task<IActionResult> LogoutAsync()
+		public async System.Threading.Tasks.Task<IActionResult> LogoutAsync(RevokeTokenRequest model)
 		{
-			string response = await _userService.LogoutAsync(AccountContext.Id);
+			var token = model.Token ?? Request.Cookies["refreshToken"];
+			if (string.IsNullOrEmpty(token))
+				return BadRequest(new { message = "Token is required" });
+
+			string response = await _userService.LogoutAsync(AccountContext.Id, token, IpAddress());
 
 			deleteTokenCookie();
 			return Ok(response);

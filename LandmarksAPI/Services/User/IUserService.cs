@@ -9,7 +9,7 @@ namespace LandmarksAPI.Services.User
 	public interface IUserService
 	{
         Task<AuthenticateResponse> AuthenticateAsync(AuthenticateRequest model, string ipAddress);
-        Task<string> LogoutAsync(string userId);
+        Task<string> LogoutAsync(string userId, string token, string ipAddress);
         IEnumerable<Entities.User> GetAll();
         Task<Account> GetById(string id);
         Task<IActionResult> RegisterAsync(RegisterRequest model, string origin);
