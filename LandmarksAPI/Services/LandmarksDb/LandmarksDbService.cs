@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace LandmarksAPI.Services
 {
-    public class CosmosDbService : ICosmosDbService
+    public class LandmarksDbService : ILandmarksDbService
     {
         private Container _container;
 
-        public CosmosDbService(CosmosClient dbClient, string databaseName, string containerName)
+        public LandmarksDbService(CosmosClient dbClient, string databaseName, string containerName)
         {
             _container = dbClient.GetContainer(databaseName, containerName);
         }

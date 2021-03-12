@@ -10,15 +10,15 @@ using Newtonsoft.Json;
 
 namespace LandmarksAPI.Services
 {
-	public class Landmarks
+	public class LandmarksService
 	{
 		private readonly IDistributedCache _cache;
 		private readonly IFourSquareService _fourSquareService;
 		private readonly IFlickrService _flickrService;
-		private readonly ICosmosDbService _cosmosDbService;
+		private readonly ILandmarksDbService _cosmosDbService;
 		private readonly TimeSpan CACHE_RETENTION_TIME = TimeSpan.FromSeconds(86400);
 
-		public Landmarks(IFourSquareService fourSquareService, IFlickrService flickrService, ICosmosDbService cosmosDbService, IDistributedCache cache)
+		public LandmarksService(IFourSquareService fourSquareService, IFlickrService flickrService, ILandmarksDbService cosmosDbService, IDistributedCache cache)
 		{
 			_fourSquareService = fourSquareService;
 			_flickrService = flickrService;

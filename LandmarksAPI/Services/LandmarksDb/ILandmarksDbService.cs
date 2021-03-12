@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace LandmarksAPI.Services
 {
-	public interface ICosmosDbService
+	public interface ILandmarksDbService
 	{
 		Task<IEnumerable<Location>> GetItemsAsync(string queryString);
 		//Task<Location> GetItemAsync(string name);

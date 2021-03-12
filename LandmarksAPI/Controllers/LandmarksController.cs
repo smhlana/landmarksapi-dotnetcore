@@ -13,10 +13,10 @@ namespace LandmarksAPI.Controllers
 	[Route("api/[controller]")]
 	public class LandmarksController : BaseController
 	{
-		private readonly Landmarks _landmarks;
-		public LandmarksController(ICosmosDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService, IDistributedCache cache)
+		private readonly LandmarksService _landmarks;
+		public LandmarksController(ILandmarksDbService cosmosDbService, IFourSquareService fourSquareService, IFlickrService flickrService, IDistributedCache cache)
 		{
-			 _landmarks = new Landmarks(fourSquareService, flickrService, cosmosDbService, cache);
+			 _landmarks = new LandmarksService(fourSquareService, flickrService, cosmosDbService, cache);
 		}
 
 		// Get: api/landmarks
