@@ -32,11 +32,11 @@ namespace LandmarksAPI
 			string account = configurationSection.GetSection("Account").Value;
 			string key = configurationSection.GetSection("Key").Value;
 			Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
-			LandmarksDbService cosmosDbService = new LandmarksDbService(client, databaseName, containerName);
+			LandmarksDbService landmarksDbService = new LandmarksDbService(client, databaseName, containerName);
 			Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-			await database.Database.CreateContainerIfNotExistsAsync(containerName, "/city");
+			await database.Database.CreateContainerIfNotExistsAsync(containerName, "/userid");
 
-			return cosmosDbService;
+			return landmarksDbService;
 		}
 
 		private static async Task<UsersDbService> InitializeUsersCosmosClientInstanceAsync(IConfigurationSection configurationSection)
@@ -46,11 +46,11 @@ namespace LandmarksAPI
 			string account = configurationSection.GetSection("Account").Value;
 			string key = configurationSection.GetSection("Key").Value;
 			Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
-			UsersDbService cosmosDbService = new UsersDbService(client, databaseName, containerName);
+			UsersDbService usersDbService = new UsersDbService(client, databaseName, containerName);
 			Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
 			await database.Database.CreateContainerIfNotExistsAsync(containerName, "/username");
 
-			return cosmosDbService;
+			return usersDbService;
 		}
 
 		private static async Task<FourSquareService> InitializeSharpSquareClientInstanceAsync(IConfigurationSection configurationSection)
@@ -79,7 +79,7 @@ namespace LandmarksAPI
 
 			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-			services.AddSingleton<ILandmarksDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+			services.AddSingleton<ILandmarksDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("LandmarksDb")).GetAwaiter().GetResult());
 
 			services.AddSingleton<IUsersDbService>(InitializeUsersCosmosClientInstanceAsync(Configuration.GetSection("UsersDb")).GetAwaiter().GetResult());
 

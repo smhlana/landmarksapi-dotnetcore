@@ -18,7 +18,7 @@ namespace LandmarksAPI.Services
 
 		public async void AddItemAsync(Location item)
 		{
-            await _container.CreateItemAsync(item, new PartitionKey(item.Name));
+            await _container.CreateItemAsync(item, new PartitionKey(item.UserId));
         }
 
 		public async Task<IEnumerable<Location>> GetItemsAsync(string queryString)
@@ -44,7 +44,7 @@ namespace LandmarksAPI.Services
 
 		public async Task UpdateItemAsync(Location item)
 		{
-            await _container.UpsertItemAsync(item, new PartitionKey(item.Name));
+            await _container.UpsertItemAsync(item, new PartitionKey(item.UserId));
         }
 	}
 }

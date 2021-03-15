@@ -28,15 +28,6 @@ namespace LandmarksAPI.Services
 
 		public async Task<List<string>> SearchAsync(string userId, string name)
 		{
-			string cacheKey = userId + "_url_" + name.ToLower();
-			string cachedUrls = GetCachedItem(cacheKey);
-			List<string> urls;
-
-			if (!string.IsNullOrEmpty(cachedUrls))
-			{
-				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
-			}
-
 			var parameters = new Dictionary<string, string>
 			{
 				{"near", name},
@@ -45,7 +36,19 @@ namespace LandmarksAPI.Services
 				{"categoryId", "4bf58dd8d48988d12d941735"}
 			};
 
-			urls = await Search(userId, parameters);
+			Models.Location location = await GetLocationObject(userId, parameters);
+
+			string cacheKey = userId + "_url_" + location.Name.ToLower();
+			string cachedUrls = GetCachedItem(cacheKey);
+			List<string> urls;
+
+			if (!string.IsNullOrEmpty(cachedUrls))
+			{
+				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
+			}
+			
+			await SaveSearchResults(location);
+			urls = FetchLocationUrls(location);
 			CacheResults(cacheKey, urls);
 			return urls;
 		}
@@ -62,7 +65,8 @@ namespace LandmarksAPI.Services
 				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
 			}
 
-			urls = await FetchLocationUrls(location);
+			await SaveSearchResults(location);
+			urls = FetchLocationUrls(location);
 			CacheResults(cacheKey, urls);
 			return urls;
 		}
@@ -240,21 +244,17 @@ namespace LandmarksAPI.Services
 			return item;
 		}
 
-		private async Task<List<string>> Search(string userId, Dictionary<string, string> parameters)
-		{
-			Models.Location location = await GetLocationObject(userId, parameters);
-			return await FetchLocationUrls(location);
-		}
-
-		private async Task<List<string>> FetchLocationUrls(Models.Location location)
+		private async Task SaveSearchResults(Models.Location location)
 		{
 			if (await DocumentExists(location))
 			{
 				await _cosmosDbService.UpdateItemAsync(location);
-				return FetchAllUrlsForLocation(location);
 			}
-
 			_cosmosDbService.AddItemAsync(location);
+		}
+
+		private List<string> FetchLocationUrls(Models.Location location)
+		{
 			return FetchAllUrlsForLocation(location);
 		}
 
