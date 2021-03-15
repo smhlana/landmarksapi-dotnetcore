@@ -42,6 +42,27 @@ namespace LandmarksAPI.Services
             return results;
         }
 
+		public async Task<IEnumerable<LocationName>> GetLocationNameAsync(string queryString)
+		{
+			var query = _container.GetItemQueryIterator<LocationName>(new QueryDefinition(queryString));
+			List<LocationName> results = new List<LocationName>();
+			try
+			{
+				while (query.HasMoreResults)
+				{
+					var response = await query.ReadNextAsync();
+
+					results.AddRange(response.ToList());
+				}
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+
+			return results;
+		}
+
 		public async Task UpdateItemAsync(Location item)
 		{
             await _container.UpsertItemAsync(item, new PartitionKey(item.UserId));

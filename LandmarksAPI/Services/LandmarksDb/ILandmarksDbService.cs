@@ -7,6 +7,7 @@ namespace LandmarksAPI.Services
 	public interface ILandmarksDbService
 	{
 		Task<IEnumerable<Location>> GetItemsAsync(string queryString);
+		Task<IEnumerable<LocationName>> GetLocationNameAsync(string queryString);
 		//Task<Location> GetItemAsync(string name);
 		void AddItemAsync(Location item);
 		Task UpdateItemAsync(Location item);

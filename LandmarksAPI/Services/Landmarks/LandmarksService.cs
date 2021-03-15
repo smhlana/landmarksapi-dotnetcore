@@ -28,6 +28,15 @@ namespace LandmarksAPI.Services
 
 		public async Task<List<string>> SearchAsync(string userId, string name)
 		{
+			string cacheKey = userId + "_url_" + name.ToLower();
+			string cachedUrls = GetCachedItem(cacheKey);
+			List<string> urls;
+
+			if (!string.IsNullOrEmpty(cachedUrls))
+			{
+				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
+			}
+
 			var parameters = new Dictionary<string, string>
 			{
 				{"near", name},
@@ -36,17 +45,8 @@ namespace LandmarksAPI.Services
 				{"categoryId", "4bf58dd8d48988d12d941735"}
 			};
 
-			Models.Location location = await GetLocationObject(userId, parameters);
+			Models.Location location = await GetLocationObject(userId, parameters, name);
 
-			string cacheKey = userId + "_url_" + location.Name.ToLower();
-			string cachedUrls = GetCachedItem(cacheKey);
-			List<string> urls;
-
-			if (!string.IsNullOrEmpty(cachedUrls))
-			{
-				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
-			}
-			
 			await SaveSearchResults(location);
 			urls = FetchLocationUrls(location);
 			CacheResults(cacheKey, urls);
@@ -56,7 +56,7 @@ namespace LandmarksAPI.Services
 		public async Task<List<string>> SearchAsync(string userId, string latitude, string longitude)
 		{
 			Models.Location location = await FetchLocationDetailsAsync(userId, latitude, longitude);
-			string cacheKey = userId + "_url_" + location.Name.ToLower();
+			string cacheKey = userId + "_url_" + location.Name;
 			string cachedUrls = GetCachedItem(cacheKey);
 			List<string> urls;
 
@@ -246,11 +246,10 @@ namespace LandmarksAPI.Services
 
 		private async Task SaveSearchResults(Models.Location location)
 		{
-			if (await DocumentExists(location))
+			if (!await DocumentExists(location))
 			{
-				await _cosmosDbService.UpdateItemAsync(location);
+				_cosmosDbService.AddItemAsync(location);
 			}
-			_cosmosDbService.AddItemAsync(location);
 		}
 
 		private List<string> FetchLocationUrls(Models.Location location)
@@ -258,18 +257,18 @@ namespace LandmarksAPI.Services
 			return FetchAllUrlsForLocation(location);
 		}
 
-		private async Task<Models.Location> GetLocationObject(string userId, Dictionary<string, string> parameters)
+		private async Task<Models.Location> GetLocationObject(string userId, Dictionary<string, string> parameters, string locationName = null)
 		{
 			List<Venue> venues = _fourSquareService.SearchVenues(parameters);
 			if (venues.Count == 0) return null;
 
-			return await CreateLocationObjectAsync(venues, userId);
+			return await CreateLocationObjectAsync(venues, userId, locationName);
 		}
 
 		private async Task<bool> DocumentExists(Models.Location newLocation)
 		{
-			string queryString = "SELECT c.name FROM c where c.city='" + newLocation.Name + "' and c.userid='" + newLocation.UserId + "'";
-			var items = await _cosmosDbService.GetItemsAsync(queryString);
+			string queryString = "SELECT c.name FROM c where c.name='" + newLocation.Name + "' and c.userid='" + newLocation.UserId + "'";
+			var items = await _cosmosDbService.GetLocationNameAsync(queryString);
 			if (items.ToArray().Length > 0) return true;
 			else return false;
 		}
@@ -290,12 +289,12 @@ namespace LandmarksAPI.Services
 			return urls;
 		}
 
-		private async Task<Models.Location> CreateLocationObjectAsync(List<Venue> venues, string userId)
+		private async Task<Models.Location> CreateLocationObjectAsync(List<Venue> venues, string userId, string locationName)
 		{
 			Models.Location location = new Models.Location
 			{
 				UserId = userId,
-				Name = null,
+				DisplayName = locationName,
 				Id = Guid.NewGuid().ToString(),
 				Latitude = null,
 				Longitude = null,
@@ -304,7 +303,7 @@ namespace LandmarksAPI.Services
 
 			foreach (var venue in venues)
 			{
-				if (venue.location.city != null && location.Name == null) location.Name = venue.location.city;
+				if (venue.location.city != null && location.DisplayName == null) location.DisplayName = venue.location.city;
 				if (location.Latitude == null) location.Latitude = venue.location.lat.ToString();
 				if (location.Longitude == null) location.Longitude = venue.location.lng.ToString();
 
@@ -344,7 +343,7 @@ namespace LandmarksAPI.Services
 				location.Landmarks.Add(landmark);
 			}
 
-			if (location.Name == null) location.Name = "Unknown";
+			if (location.DisplayName == null) location.DisplayName = "Unknown";
 			return location;
 		}
 	}
