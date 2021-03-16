@@ -186,7 +186,7 @@ namespace LandmarksAPI.Services
 				return JsonConvert.DeserializeObject<List<string>>(cachedUrls);
 			}
 
-			string queryString = "SELECT * FROM c where c.city='" + locationName + "' and c.userid='" + userId + "'";
+			string queryString = "SELECT * FROM c where c.name='" + locationName + "' and c.userid='" + userId + "'";
 			var items = await _cosmosDbService.GetItemsAsync(queryString);
 			if (items.ToArray().Length == 0) return null;
 
