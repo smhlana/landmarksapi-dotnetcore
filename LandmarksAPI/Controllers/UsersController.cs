@@ -6,7 +6,7 @@ using System;
 
 namespace LandmarksAPI.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/landmarks/[controller]")]
 	[ApiController]
 	public class UsersController : BaseController
 	{
@@ -16,6 +16,7 @@ namespace LandmarksAPI.Controllers
             _userService = userService;
 		}
 
+		// Post: api/landmarks/users/login
 		[HttpPost("login")]
 		public async System.Threading.Tasks.Task<IActionResult> AuthenticateAsync([FromBody] AuthenticateRequest model)
 		{
@@ -25,6 +26,7 @@ namespace LandmarksAPI.Controllers
 			return Ok(response);
 		}
 
+		// Post: api/landmarks/users/logout
 		[Helpers.Authorize]
 		[HttpPost("logout")]
 		public async System.Threading.Tasks.Task<IActionResult> LogoutAsync(RevokeTokenRequest model)
@@ -39,6 +41,7 @@ namespace LandmarksAPI.Controllers
 			return Ok(response);
 		}
 
+		// Post: api/landmarks/users/register
 		[HttpPost("register")]
 		public async System.Threading.Tasks.Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
 		{
