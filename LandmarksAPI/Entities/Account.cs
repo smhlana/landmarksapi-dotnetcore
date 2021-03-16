@@ -18,8 +18,6 @@ namespace LandmarksAPI.Entities
         public string Username { get; set; }
         [JsonProperty(PropertyName = "passwordhash")]
         public string PasswordHash { get; set; }
-        [JsonProperty(PropertyName = "acceptterms")]
-        public bool AcceptTerms { get; set; }
         [JsonProperty(PropertyName = "verificationtoken")]
         public string VerificationToken { get; set; }
         [JsonProperty(PropertyName = "verified")]
