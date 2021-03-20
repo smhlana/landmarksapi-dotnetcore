@@ -14,13 +14,13 @@ namespace LandmarksAPI.Middleware
 	public class JwtMiddleware
 	{
         private readonly RequestDelegate _next;
-		private readonly AppSettings _appSettings;
+		private readonly AuthSettings _authSettings;
         private IUsersDbService _userDbService;
 
-        public JwtMiddleware(RequestDelegate next, IOptions<AppSettings> appSettings, IUsersDbService userDbService)
+        public JwtMiddleware(RequestDelegate next, AuthSettings authSettings, IUsersDbService userDbService)
 		{
 			_next = next;
-			_appSettings = appSettings.Value;
+			_authSettings = authSettings;
             _userDbService = userDbService;
 		}
 
@@ -39,7 +39,7 @@ namespace LandmarksAPI.Middleware
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                var key = Encoding.ASCII.GetBytes(_authSettings.Secret);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -61,7 +61,7 @@ namespace LandmarksAPI.Middleware
 					if (validToken != null && !validToken.IsExpired) context.Items["Account"] = await _userDbService.GetUserByIdAsync(accountId); 
 				}
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

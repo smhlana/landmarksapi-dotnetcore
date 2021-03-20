@@ -1,6 +1,6 @@
 ﻿namespace LandmarksAPI.Helpers
 {
-    public class AppSettings
+    public class AuthSettings
     {
         public string Secret { get; set; }
 

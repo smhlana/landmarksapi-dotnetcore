@@ -13,6 +13,11 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using LandmarksAPI.Middleware;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Identity;
+using LandmarksAPI.Helpers.AppSettings;
+using Newtonsoft.Json;
+using Microsoft.Azure.Cosmos;
 
 namespace LandmarksAPI
 {
@@ -25,46 +30,55 @@ namespace LandmarksAPI
 
 		public IConfiguration Configuration { get; }
 
-		private static async Task<LandmarksDbService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+		private AppSettings GetAppSettings()
 		{
-			string databaseName = configurationSection.GetSection("DatabaseName").Value;
-			string containerName = configurationSection.GetSection("ContainerName").Value;
-			string account = configurationSection.GetSection("Account").Value;
-			string key = configurationSection.GetSection("Key").Value;
-			Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
+			IConfigurationSection keyVault = Configuration.GetSection("KeyVault");
+			string keyVaultUri = keyVault.GetSection("Uri").Value;
+			SecretClient secretClient = new SecretClient(vaultUri: new Uri(keyVaultUri), credential: new DefaultAzureCredential());
+			KeyVaultSecret appSettings = secretClient.GetSecret("AppSettings");
+			return JsonConvert.DeserializeObject<AppSettings>(appSettings.Value);
+		}
+
+		private static async Task<LandmarksDbService> InitializeCosmosClientInstanceAsync(CosmosDbSettings settings)
+		{
+			string databaseName = settings.DatabaseName;
+			string containerName = settings.ContainerName;
+			string account = settings.Account;
+			string key = settings.Key;
+			CosmosClient client = new CosmosClient(account, key);
 			LandmarksDbService landmarksDbService = new LandmarksDbService(client, databaseName, containerName);
-			Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+			DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
 			await database.Database.CreateContainerIfNotExistsAsync(containerName, "/userid");
 
 			return landmarksDbService;
 		}
 
-		private static async Task<UsersDbService> InitializeUsersCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+		private static async Task<UsersDbService> InitializeUsersCosmosClientInstanceAsync(CosmosDbSettings settings)
 		{
-			string databaseName = configurationSection.GetSection("DatabaseName").Value;
-			string containerName = configurationSection.GetSection("ContainerName").Value;
-			string account = configurationSection.GetSection("Account").Value;
-			string key = configurationSection.GetSection("Key").Value;
-			Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
+			string databaseName = settings.DatabaseName;
+			string containerName = settings.ContainerName;
+			string account = settings.Account;
+			string key = settings.Key;
+			CosmosClient client = new CosmosClient(account, key);
 			UsersDbService usersDbService = new UsersDbService(client, databaseName, containerName);
-			Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+			DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
 			await database.Database.CreateContainerIfNotExistsAsync(containerName, "/username");
 
 			return usersDbService;
 		}
 
-		private static async Task<FourSquareService> InitializeSharpSquareClientInstanceAsync(IConfigurationSection configurationSection)
+		private static FourSquareService InitializeSharpSquareClientInstance(FSquareSettings settings)
 		{
-			string clientId = configurationSection.GetSection("ClientId").Value;
-			string clientSecret = configurationSection.GetSection("ClientSecret").Value;
+			string clientId = settings.ClientId;
+			string clientSecret = settings.ClientSecret;
 			FourSquareService fourSquareService = new FourSquareService(clientId, clientSecret);
 
 			return fourSquareService;
 		}
 
-		private static async Task<FlickrService> InitializeFlickrClientInstanceAsync(IConfigurationSection configurationSection)
+		private static FlickrService InitializeFlickrClientInstance(FlickrSettings settings)
 		{
-			string key = configurationSection.GetSection("Key").Value;
+			string key = settings.Key;
 			FlickrService flickrService = new FlickrService(key);
 
 			return flickrService;
@@ -73,33 +87,33 @@ namespace LandmarksAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			AppSettings settings = GetAppSettings();
+
 			services.AddCors();
 
 			services.AddControllers();
 
 			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-			services.AddSingleton<ILandmarksDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("LandmarksDb")).GetAwaiter().GetResult());
+			services.AddSingleton<ILandmarksDbService>(InitializeCosmosClientInstanceAsync(settings.LandmarksDb).GetAwaiter().GetResult());
 
-			services.AddSingleton<IUsersDbService>(InitializeUsersCosmosClientInstanceAsync(Configuration.GetSection("UsersDb")).GetAwaiter().GetResult());
+			services.AddSingleton<IUsersDbService>(InitializeUsersCosmosClientInstanceAsync(settings.UsersDb).GetAwaiter().GetResult());
 
-			services.AddSingleton<IFourSquareService>(InitializeSharpSquareClientInstanceAsync(Configuration.GetSection("FourSquare")).GetAwaiter().GetResult());
+			services.AddSingleton<IFourSquareService>(InitializeSharpSquareClientInstance(settings.FourSquare));
 
-			services.AddSingleton<IFlickrService>(InitializeFlickrClientInstanceAsync(Configuration.GetSection("Flickr")).GetAwaiter().GetResult());
+			services.AddSingleton<IFlickrService>(InitializeFlickrClientInstance(settings.Flickr));
 
-			var appSettingsSection = Configuration.GetSection("AppSettings");
-			services.Configure<AppSettings>(appSettingsSection);
+			services.AddSingleton(settings.AuthSettings);
 
 			services.AddDistributedRedisCache(options =>
 			{
-				IConfigurationSection redisSetting = Configuration.GetSection("Redis");
-				string redisConnectionString = redisSetting.GetSection("ConnectionString").Value;
+				string redisConnectionString = settings.Redis.ConnectionString;
 				options.Configuration = redisConnectionString;
 			});
 
 			// configure jwt authentication
-			var appSettings = appSettingsSection.Get<AppSettings>();
-			var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+			AuthSettings authSettings = settings.AuthSettings;
+			byte[] key = Encoding.ASCII.GetBytes(authSettings.Secret);
 			services.AddAuthentication(x =>
 			{
 				x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
