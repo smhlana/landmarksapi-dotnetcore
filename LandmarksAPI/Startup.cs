@@ -67,7 +67,7 @@ namespace LandmarksAPI
 			return usersDbService;
 		}
 
-		private static async Task<FourSquareService> InitializeSharpSquareClientInstanceAsync(FSquareSettings settings)
+		private static FourSquareService InitializeSharpSquareClientInstance(FSquareSettings settings)
 		{
 			string clientId = settings.ClientId;
 			string clientSecret = settings.ClientSecret;
@@ -76,7 +76,7 @@ namespace LandmarksAPI
 			return fourSquareService;
 		}
 
-		private static async Task<FlickrService> InitializeFlickrClientInstanceAsync(FlickrSettings settings)
+		private static FlickrService InitializeFlickrClientInstance(FlickrSettings settings)
 		{
 			string key = settings.Key;
 			FlickrService flickrService = new FlickrService(key);
@@ -99,9 +99,9 @@ namespace LandmarksAPI
 
 			services.AddSingleton<IUsersDbService>(InitializeUsersCosmosClientInstanceAsync(settings.UsersDb).GetAwaiter().GetResult());
 
-			services.AddSingleton<IFourSquareService>(InitializeSharpSquareClientInstanceAsync(settings.FourSquare).GetAwaiter().GetResult());
+			services.AddSingleton<IFourSquareService>(InitializeSharpSquareClientInstance(settings.FourSquare));
 
-			services.AddSingleton<IFlickrService>(InitializeFlickrClientInstanceAsync(settings.Flickr).GetAwaiter().GetResult());
+			services.AddSingleton<IFlickrService>(InitializeFlickrClientInstance(settings.Flickr));
 
 			services.AddSingleton(settings.AuthSettings);
 

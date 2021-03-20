@@ -61,7 +61,7 @@ namespace LandmarksAPI.Middleware
 					if (validToken != null && !validToken.IsExpired) context.Items["Account"] = await _userDbService.GetUserByIdAsync(accountId); 
 				}
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
