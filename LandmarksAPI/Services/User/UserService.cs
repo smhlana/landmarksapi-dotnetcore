@@ -22,13 +22,13 @@ namespace LandmarksAPI.Services.User
 	{
 		private IUsersDbService _userDbService;
 		private readonly IMapper _mapper;
-		private readonly AppSettings _appSettings;
+		private readonly AuthSettings _authSettings;
 
-		public UserService(IUsersDbService userDbService, IMapper mapper, IOptions<AppSettings> appSettings)
+		public UserService(IUsersDbService userDbService, IMapper mapper, AuthSettings authSettings)
 		{
 			_userDbService = userDbService;
 			_mapper = mapper;
-			_appSettings = appSettings.Value;
+			_authSettings = authSettings;
 		}
 
 		public async Task<AuthenticateResponse> AuthenticateAsync(AuthenticateRequest model, string ipAddress)
@@ -111,7 +111,7 @@ namespace LandmarksAPI.Services.User
 		private string GenerateJwtToken(Account account)
 		{
 			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+			var key = Encoding.ASCII.GetBytes(_authSettings.Secret);
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
 				Subject = new ClaimsIdentity(new[] { new Claim("id", account.Id.ToString()) }),
@@ -126,7 +126,7 @@ namespace LandmarksAPI.Services.User
 		{
 			account.RefreshTokens.RemoveAll(x =>
 				!x.IsActive &&
-				x.Created.AddDays(_appSettings.RefreshTokenTTL) <= DateTime.UtcNow);
+				x.Created.AddDays(_authSettings.RefreshTokenTTL) <= DateTime.UtcNow);
 		}
 
 		private RefreshToken GenerateRefreshToken(Account account, string ipAddress)
