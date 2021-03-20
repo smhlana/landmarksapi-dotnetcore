@@ -20,6 +20,14 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
 ## Step 3. Trust development certificates ***
     dotnet dev-certs https --clean
     dotnet dev-certs https --trust
+    
+## Step 4. Save Key Vault credentials
+    This project uses Azure key vaul to store application keys. A service principal is used for authentication to the key vault. 
+    
+    Add environment variables to store the key vault credentials. Add the following environment variables unnder **System Variables**:
+    AZURE_CLIENT_ID = <clientId-of-your-service-principal>
+    AZURE_CLIENT_SECRET = <clientSecret-of-your-service-principal>
+    AZURE_TENANT_ID = <tenantId-of-your-service-principal>
 
 ## Step 4. Run the API
     Open LandmarksAPI.sln in Visual Studio 2019 (landmarksapi-dotnetcore\LandmarksAPI\LandmarksAPI.sln) and run
