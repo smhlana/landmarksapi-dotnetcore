@@ -24,7 +24,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
 ## Step 4. Run the API
     Open LandmarksAPI.sln in Visual Studio 2019 (landmarksapi-dotnetcore\LandmarksAPI\LandmarksAPI.sln) and run
     This should open up a browser window to the url "https://localhost:<port>/api/landmarks" with the message "{"message":"Unauthorized. Please login."}"
-        ![image](https://user-images.githubusercontent.com/11193045/111866737-41536f80-8978-11eb-8043-d53b7b993e89.png)
+    (https://user-images.githubusercontent.com/11193045/111866737-41536f80-8978-11eb-8043-d53b7b993e89.png)
 
 ## Step 5. Register
     You have to register before you can use the API.
@@ -43,9 +43,9 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
                 "password": "5621547",
                 "confirmPassword": "5621547"
             }
-          ![image](https://user-images.githubusercontent.com/11193045/111867097-8f697280-897a-11eb-9f68-b8e4713c6e05.png) 
+      (https://user-images.githubusercontent.com/11193045/111867097-8f697280-897a-11eb-9f68-b8e4713c6e05.png) 
     6. Click the "Send" button, you should receive a "200 OK" response with a "registration successful" message in the response body.
-          ![image](https://user-images.githubusercontent.com/11193045/111867185-1b7b9a00-897b-11eb-9f7a-d85c665fe213.png)
+      (https://user-images.githubusercontent.com/11193045/111867185-1b7b9a00-897b-11eb-9f7a-d85c665fe213.png)
 
 ## Step 6. Login
     You have to login to get an authentication token.
@@ -58,7 +58,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
                 "password": "5621547"
             }
     3. Click the "Send" button, you should receive a "200 OK" response with the user details and a token. You will use this token to make requests.
-          ![image](https://user-images.githubusercontent.com/11193045/111867533-5383dc80-897d-11eb-8a1e-2e763b1f567a.png)
+      (https://user-images.githubusercontent.com/11193045/111867533-5383dc80-897d-11eb-8a1e-2e763b1f567a.png)
 
 ## Step 7. Make requests
     To make a request using Postman follow these steps:
