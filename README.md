@@ -47,16 +47,16 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     5. Select the "Body" tab below the URL field, change the body type radio button to "raw", and change the 
         format dropdown selector to "JSON".
     7. Enter a JSON object containing the required details in the "Body" textarea as follows and fill in the 
-        values as required:
+        values as required (password has to be 6 characters or more):
             {
                 "title": "Mr",
                 "firstName": "Sesethu",
                 "lastName": "Mhlana",
                 "username": "smhlana",
-                "password": "5621547",
-                "confirmPassword": "5621547"
+                "password": "your-secret-password-here",
+                "confirmPassword": "your-secret-password-here"
             }
-![image](https://user-images.githubusercontent.com/11193045/111867097-8f697280-897a-11eb-9f68-b8e4713c6e05.png)
+![image](https://user-images.githubusercontent.com/11193045/111899076-d9ae2a80-8a32-11eb-83aa-bcaf959e8299.png)
 
     6. Click the "Send" button, you should receive a "200 OK" response with a "registration successful" message 
         in the response body.
@@ -75,7 +75,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
             }
     3. Click the "Send" button, you should receive a "200 OK" response with the user details and a token. You 
         will use this token to make requests.
-![image](https://user-images.githubusercontent.com/11193045/111867533-5383dc80-897d-11eb-8a1e-2e763b1f567a.png)
+![image](https://user-images.githubusercontent.com/11193045/111898987-25ac9f80-8a32-11eb-8868-752524218374.png)
 
 ## Step 7. Make requests
     To make a request using Postman follow these steps:
