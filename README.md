@@ -25,7 +25,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     This project uses Azure key vaul to store application keys. A service principal is used for authentication to the key vault. 
     
     Add environment variables to store the key vault credentials. Add the following environment variables under 
-    **System Variables**:
+    System Variables:
     AZURE_CLIENT_ID = <clientId-of-your-service-principal>
     AZURE_CLIENT_SECRET = <clientSecret-of-your-service-principal>
     AZURE_TENANT_ID = <tenantId-of-your-service-principal>
@@ -85,7 +85,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     3. In the URL field enter the address "http://localhost:<port>/api/landmarks/<endpoint>" to point to the 
         register endpoint. Find the relevent endpoint in the **Endpoints** section below
     5. Select the "Authorization" tab below the URL field, change the type to "Bearer Token" in the type 
-        dropdown selector, and paste the token from the **Login** step into the "Token" field.
+        dropdown selector, and paste the token from the Login step into the "Token" field.
     7. Click the "Send" button, you should receive a "200 OK" response with the requested information.
     
 ### Endpoints:
