@@ -6,6 +6,7 @@ This repository contains an ASP .NET Core API that searches for landmarks in a s
 - Dotnet Core 3.1 SDK must be installed.
 - Visual Studio 2019 must be installed.
 - Postman must be installed.
+- Git must be installed.
 
 Use a command line interface (cmd, PowerShell etc.), follow the steps below:
 
