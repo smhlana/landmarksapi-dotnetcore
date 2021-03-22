@@ -14,7 +14,7 @@ Use a command line interface (cmd, PowerShell etc.), follow the steps below:
 git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
 
 ## Step 2. Install .NET Core API dependencies
-    cd landmarksapi-dotnetcore
+    cd landmarksapi-dotnetcore/LandmarksAPI
     dotnet restore
     dotnet build
     
