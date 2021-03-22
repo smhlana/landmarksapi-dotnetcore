@@ -84,7 +84,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     1. Open a new request tab by clicking the plus (+) button at the end of the tabs.
     2. Change the http request method to "GET" with the dropdown selector on the left of the URL input field.
     3. In the URL field enter the address "http://localhost:<port>/api/landmarks/<endpoint>" to point to the 
-        register endpoint. Find the relevent endpoint in the **Endpoints** section below
+        register endpoint. Find the relevent endpoint in the Endpoints section below
     5. Select the "Authorization" tab below the URL field, change the type to "Bearer Token" in the type 
         dropdown selector, and paste the token from the Login step into the "Token" field.
     7. Click the "Send" button, you should receive a "200 OK" response with the requested information.
