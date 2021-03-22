@@ -8,7 +8,6 @@ namespace LandmarksAPI.Helpers
 	{
         public AutoMapperProfile()
         {
-            CreateMap<Entities.User, Models.Users.User>();
             CreateMap<RegisterRequest, Entities.User>();
 
             CreateMap<Account, AccountResponse>();
