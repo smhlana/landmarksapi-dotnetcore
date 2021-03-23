@@ -30,6 +30,8 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     AZURE_CLIENT_ID = <clientId-of-your-service-principal>
     AZURE_CLIENT_SECRET = <clientSecret-of-your-service-principal>
     AZURE_TENANT_ID = <tenantId-of-your-service-principal>
+    
+    Add key vault uri in the appsettings.json file under KeyVault > Uri.
 
 ## Step 4. Run the API
     Open LandmarksAPI.sln in Visual Studio 2019 (landmarksapi-dotnetcore\LandmarksAPI\LandmarksAPI.sln) and run
