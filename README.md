@@ -1,4 +1,4 @@
-# dotnet-landmarks-api
+# .Net Core API - Search For Landmarks
 This repository contains an ASP .NET Core API that searches for landmarks in a specified location and the images associated with the landmarks.
 
 # Setup
