@@ -64,7 +64,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
 ![image](https://user-images.githubusercontent.com/11193045/111899076-d9ae2a80-8a32-11eb-83aa-bcaf959e8299.png)
 
     6. Click the "Send" button, you should receive a "200 OK" response with a "registration successful" message 
-        in the response body.
+        in the response body. Postman might return a message saying "Unable to verify first certificate" and prompt you to disable verification, select yes.
 ![image](https://user-images.githubusercontent.com/11193045/111867185-1b7b9a00-897b-11eb-9f7a-d85c665fe213.png)
 
 ## Step 6. Login
