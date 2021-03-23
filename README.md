@@ -16,7 +16,6 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
 ## Step 2. Install .NET Core API dependencies
     cd landmarksapi-dotnetcore/LandmarksAPI
     dotnet restore
-    dotnet build
     
 ## Step 3. Trust development certificates ***
     dotnet dev-certs https --clean
@@ -32,9 +31,12 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     AZURE_TENANT_ID = <tenantId-of-your-service-principal>
     
     Add key vault uri in the appsettings.json file under KeyVault > Uri.
+    
+    If you had Visual Studio open, restart it at this point.
 
 ## Step 4. Run the API
-    Open LandmarksAPI.sln in Visual Studio 2019 (landmarksapi-dotnetcore\LandmarksAPI\LandmarksAPI.sln) and run
+    Open LandmarksAPI.sln in Visual Studio 2019 (landmarksapi-dotnetcore\LandmarksAPI\LandmarksAPI.sln). Build and run
+    the solution.
     This should open up a browser window to the url "https://localhost:<port>/api/landmarks" with the message 
     "{"message":"Unauthorized. Please login."}"
 ![image](https://user-images.githubusercontent.com/11193045/111881743-a29c3280-89ba-11eb-99a0-9925902eae43.png)
