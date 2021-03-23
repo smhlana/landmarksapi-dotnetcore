@@ -31,9 +31,6 @@
 *.out
 *.app
 
-# Config files
-*appsettings.json
-
 # VS files
 *.vs/VSWorkspaceState.json
 *.vs/landmarksapi-dotnetcore/v16/.suo
