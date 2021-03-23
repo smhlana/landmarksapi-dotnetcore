@@ -43,7 +43,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
 
 ## Step 5. Register
     You have to register before you can use the API.
-    To register an account using Postman follw these steps:
+    To register an account using Postman follow these steps:
     
     1. Open a new request tab by clicking the plus (+) button at the end of the tabs.
     2. Change the http request method to "POST" with the dropdown selector on the left of the URL input field.
