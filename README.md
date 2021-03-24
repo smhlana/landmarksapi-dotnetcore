@@ -79,7 +79,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     3. Enter a JSON object containing the usename and password as follows:
             {
                 "username": "smhlana",
-                "password": "5621547"
+                "password": "your-secret-password-here"
             }
     3. Click the "Send" button, you should receive a "200 OK" response with the user details and a token. You 
         will use this token to make requests.
