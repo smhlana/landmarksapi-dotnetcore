@@ -34,7 +34,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     Add the key vault uri in the appsettings.json file (landmarksapi-dotnetcore/LandmarksAPI/appsettings.json) 
     under KeyVault > Uri.
     
-    If you had Visual Studio open, restart it at this point.
+    If you had Visual Studio open, restart it at this point for the environment variables to take effect.
 
 ## Step 4. Run the API
     Open LandmarksAPI.sln in Visual Studio 2019 (landmarksapi-dotnetcore\LandmarksAPI\LandmarksAPI.sln). Build and run
