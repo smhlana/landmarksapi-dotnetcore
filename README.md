@@ -22,7 +22,8 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     dotnet dev-certs https --trust
     
 ## Step 4. Save Key Vault credentials
-    This project uses Azure key vault to store application keys. A service principal is used for authentication to the key vault. 
+    This project uses Azure key vault to store application keys. A service principal is used for authentication
+    to the key vault. 
     
     Add environment variables to store the key vault credentials. Add the following environment variables under 
     System Variables:
@@ -30,7 +31,8 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     AZURE_CLIENT_SECRET = <clientSecret-of-your-service-principal>
     AZURE_TENANT_ID = <tenantId-of-your-service-principal>
     
-    Add key vault uri in the appsettings.json file under KeyVault > Uri.
+    Add the key vault uri in the appsettings.json file (landmarksapi-dotnetcore/LandmarksAPI/appsettings.json) 
+    under KeyVault > Uri.
     
     If you had Visual Studio open, restart it at this point.
 
