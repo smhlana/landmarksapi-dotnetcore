@@ -17,7 +17,7 @@ git clone https://github.com/smhlana/landmarksapi-dotnetcore.git
     cd landmarksapi-dotnetcore/LandmarksAPI
     dotnet restore
     
-## Step 3. Trust development certificates ***
+## Step 3. Trust development certificates
     dotnet dev-certs https --clean
     dotnet dev-certs https --trust
     
